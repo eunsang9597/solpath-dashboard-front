@@ -359,8 +359,20 @@ export function initProductMapping(mount) {
       });
       const selCat = buildSelectCat(dataIdx, row2.internal_category);
       const selLife = buildSelectLife(dataIdx, row2.lifecycle);
+      const catN = normalizePmCategory_(row2.internal_category);
+      const lifeN = normalizePmLifecycle_(row2.lifecycle);
+      let rowLifeClass = '';
+      if (catN !== 'unmapped') {
+        if (lifeN === 'archived') {
+          rowLifeClass = ' sp-pm-row--life-archived';
+        } else if (lifeN === 'legacy') {
+          rowLifeClass = ' sp-pm-row--life-legacy';
+        }
+      }
       parts.push(
-        '<div class="sp-pm-row" data-prod-no="' +
+        '<div class="sp-pm-row' +
+          rowLifeClass +
+          '" data-prod-no="' +
           String(row2.prod_no) +
           '"><span class="sp-pm-row__no">' +
           escAttr(String(row2.prod_no)) +

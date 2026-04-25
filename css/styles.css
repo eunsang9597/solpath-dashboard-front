@@ -13,8 +13,8 @@
   --radius: 16px;
   --shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 8px 32px rgba(16, 24, 40, 0.06);
   --shadow-hero: 0 1px 2px rgba(16, 24, 40, 0.05), 0 10px 40px rgba(11, 92, 173, 0.07);
-  /* 본문·라벨·버튼 등 순수 텍스트 +5pt; 인풋·.sp-pm-sel(드롭다운)은 별도 고정 */
-  --sp-text-bump: 5pt;
+  /* 본문·라벨·버튼 등 순수 텍스트(원 +3pt, 예전 +5pt에서 2pt 환원); 인풋·.sp-pm-sel은 별도 고정 */
+  --sp-text-bump: 3pt;
   font-synthesis: weight style;
 }
 
@@ -1214,6 +1214,25 @@ input.sp-confirm:disabled {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* 미분류가 아닌 행만: 만료=살짝 회색, (구)상품=빨강 — 상품명·번호(드롭다운은 가독 유지) */
+#sp-pm-root .sp-pm-row--life-archived .sp-pm-row__no,
+#sp-pm-root .sp-pm-row--life-archived .sp-pm-row__name {
+  color: #5a6570;
+}
+
+#sp-pm-root .sp-pm-row--life-legacy .sp-pm-row__no,
+#sp-pm-root .sp-pm-row--life-legacy .sp-pm-row__name {
+  color: #b91c1c;
+}
+
+#sp-pm-root .sp-pm-row--life-archived .sp-pm-sel--life {
+  color: #4b5562;
+}
+
+#sp-pm-root .sp-pm-row--life-legacy .sp-pm-sel--life {
+  color: #9f1239;
 }
 
 .sp-pm-sel__wrap {
