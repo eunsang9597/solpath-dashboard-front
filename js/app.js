@@ -1,6 +1,6 @@
 import { GAS_MODE, GAS_BASE_URL } from './config.js';
 import { SYNC_PAGE_SHELL_HTML } from './syncPageTemplate.js';
-import { initProductMapping } from './productMapping.js';
+import { applyProductMappingHeaderUrls, initProductMapping } from './productMapping.js';
 
 const MOUNT_ID = 'solpath-root';
 const syncAction = 'syncOpenFull';
@@ -36,6 +36,7 @@ const actionNote = /** @type {HTMLElement | null} */ (scope.querySelector('#sp-a
 const loadingOverlay = /** @type {HTMLElement | null} */ (scope.querySelector('#sp-loadingOverlay'));
 const successActions = /** @type {HTMLElement | null} */ (scope.querySelector('#sp-successActions'));
 const sheetsLink = /** @type {HTMLAnchorElement | null} */ (scope.querySelector('#sp-sheetsLink'));
+const syncHeadAggregate = /** @type {HTMLAnchorElement | null} */ (scope.querySelector('#sp-syncLinkAggregate'));
 const feedback = /** @type {HTMLElement | null} */ (scope.querySelector('#sp-feedback'));
 
 let syncBusy = false;
@@ -168,6 +169,26 @@ function refreshSyncButtonState() {
 }
 
 /**
+ * 데이터 동기화 탭 상단 — 집계(마스터) 스프레드시트만. 실행 완료 후 피드백의 링크와 별개.
+ * @param {string|undefined} url
+ */
+function setSyncAggregateHeadLink(url) {
+  if (!syncHeadAggregate) {
+    return;
+  }
+  const u = String(url != null ? url : '').trim();
+  if (u.length > 0 && (u.indexOf('http://') === 0 || u.indexOf('https://') === 0)) {
+    syncHeadAggregate.href = u;
+    syncHeadAggregate.removeAttribute('hidden');
+  } else {
+    syncHeadAggregate.setAttribute('hidden', '');
+    syncHeadAggregate.removeAttribute('href');
+    syncHeadAggregate.setAttribute('href', '#');
+  }
+}
+
+/**
+ * 동기화 완료 메시지 블록 안 — 집계 시트 확인하기 (같은 마스터 URL)
  * @param {string|undefined} url
  */
 function showSheetsButton(url) {
@@ -295,15 +316,16 @@ async function postSyncOpenFull() {
         (o && o.orderRows != null ? o.orderRows : '—') +
         ' · 품목 ' +
         (o && o.itemRows != null ? o.itemRows : '—') +
-        '. [집계 시트 열기]로 확인합니다.'
+        '. [집계 시트 확인하기]로 확인합니다.'
     );
     const sheetUrl = d.spreadsheetUrl != null ? String(d.spreadsheetUrl).trim() : '';
     if (sheetUrl) {
+      setSyncAggregateHeadLink(sheetUrl);
       showSheetsButton(sheetUrl);
       setHint('');
     } else {
       hideSheetsButton();
-      setHint('집계 시트 바로가기를 받지 못했습니다. 운영 절차에 따라 문의합니다.');
+      setHint('집계 시트 링크를 받지 못했습니다. 운영 절차에 따라 문의합니다.');
     }
   } catch (e) {
     setChip('오류', 'err');
@@ -356,6 +378,7 @@ async function main() {
   wireTabs_();
   initProductMapping(mount);
   hideSheetsButton();
+  setSyncAggregateHeadLink('');
   if (GAS_MODE.useMock) {
     setChip('미연결', 'soft');
     setStatus('서버와 연결이 잡혀 있지 않습니다. 운영에서 안내받은 절차에 따라 환경을 확인합니다.');
@@ -367,6 +390,20 @@ async function main() {
   setStatus('');
   setHint('');
   wireSync();
+  try {
+    const url = String(GAS_BASE_URL).trim();
+    const st = await gasJsonp_(url, 'productMappingState', 60000);
+    if (st && st.ok && st.data) {
+      const d = st.data;
+      const mu = d.masterSpreadsheetUrl != null ? String(d.masterSpreadsheetUrl).trim() : '';
+      setSyncAggregateHeadLink(mu);
+      if (mount) {
+        applyProductMappingHeaderUrls(mount, d);
+      }
+    }
+  } catch (_e) {
+    /* 링크 없이 동기화 탭만 사용 */
+  }
 }
 
 main().catch((e) => {

@@ -60,9 +60,19 @@ export const SYNC_PAGE_SHELL_HTML = `<div class="app-shell app-shell--v9">
           aria-labelledby="sp-tab-sync"
         >
         <div class="panel panel--hero">
-          <div class="panel__head">
+          <div class="panel__head sp-sync-head">
             <h2 class="sp-panel-eyebrow" id="sp-panel-sync-h">데이터 동기화</h2>
-            <span class="chip chip--soft" id="sp-envChip">미연결</span>
+            <div class="sp-sync-head__right">
+              <span class="chip chip--soft" id="sp-envChip">미연결</span>
+              <a
+                class="btn btn--secondary sp-sync-head__link"
+                id="sp-syncLinkAggregate"
+                href="#"
+                target="_blank"
+                rel="noopener noreferrer"
+                hidden
+              >집계 시트 열기</a>
+            </div>
           </div>
           <div class="sp-confirm-block">
             <p class="sp-confirm-instruct">데이터 초기화 시: 아래 텍스트 박스에 <code>데이터 동기화</code> 정확 입력 &rarr; <strong>실행</strong> 클릭.</p>
@@ -83,7 +93,7 @@ export const SYNC_PAGE_SHELL_HTML = `<div class="app-shell app-shell--v9">
                   target="_blank"
                   rel="noopener noreferrer"
                   hidden
-                >집계 시트 열기</a>
+                >집계 시트 확인하기</a>
               </div>
             </div>
           </div>
@@ -98,29 +108,21 @@ export const SYNC_PAGE_SHELL_HTML = `<div class="app-shell app-shell--v9">
           hidden
         >
           <div class="panel panel--hero" id="sp-pm-root">
-            <div class="panel__head">
+            <div class="panel__head sp-pm-head">
               <h2 class="sp-panel-eyebrow" id="sp-pm-eyebrow">상품 항목 분류</h2>
-              <div class="sp-pm-hero__actions" id="sp-pm-heroActions">
-                <div class="sp-pm-external" id="sp-pm-external" hidden>
-                  <a
-                    class="sp-pm-external__link"
-                    id="sp-pm-linkMaster"
-                    href="#"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    hidden
-                    >원천 DB 열기</a
-                  >
-                  <a
-                    class="sp-pm-external__link"
-                    id="sp-pm-linkOps"
-                    href="#"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    hidden
-                    >운영 DB(분류) 열기</a
-                  >
-                </div>
+              <div class="sp-pm-head__right sp-pm-external" id="sp-pm-external" hidden>
+                <a
+                  class="sp-pm-external__link"
+                  id="sp-pm-linkOps"
+                  href="#"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  hidden
+                  >운영 DB(분류) 열기</a
+                >
+              </div>
+            </div>
+            <div class="sp-pm-hero__actions" id="sp-pm-heroActions">
                 <div class="sp-pm-hero__ctas" id="sp-pm-heroCtas">
                   <button type="button" class="btn btn--primary sp-pm-apply" id="sp-pm-apply" disabled>수정하기</button>
                   <button
@@ -133,7 +135,6 @@ export const SYNC_PAGE_SHELL_HTML = `<div class="app-shell app-shell--v9">
                   >데이터 초기화</button>
                 </div>
                 <p class="sp-pm-reset-note" id="sp-pm-resetNote" hidden>위 작업은 <strong>되돌릴 수 없습니다</strong>. 팀에 공유한 뒤 누르세요.</p>
-              </div>
             </div>
             <div class="sp-confirm-block sp-pm-confirm" id="sp-pm-confirm">
               <p class="sp-confirm-instruct" id="sp-pm-instruct">원천 DB의 상품과 연결해 <strong>내부 대분류</strong>(솔패스·솔루틴·챌린지·교재)를 씁니다. 처음이면 <strong>상품 불러오기</strong>로 운영용 시트를 만듭니다.</p>

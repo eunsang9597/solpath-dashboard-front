@@ -141,6 +141,29 @@ function rowSig(r) {
 }
 
 /**
+ * 상품 항목 분류 탭 전용 — 운영(분류) 스프레드시트 URL만 반영. 집계(마스터) 링크는 넣지 않음.
+ * @param {HTMLElement} mount
+ * @param {Record<string, unknown>} d
+ */
+export function applyProductMappingHeaderUrls(mount, d) {
+  const ext = mount.querySelector('#sp-pm-external');
+  const lo = /** @type {HTMLAnchorElement | null} */ (mount.querySelector('#sp-pm-linkOps'));
+  if (!ext || !lo) {
+    return;
+  }
+  const ops = d && d.operationsSpreadsheetUrl ? String(d.operationsSpreadsheetUrl).trim() : '';
+  if (ops && /^https?:\/\//i.test(ops)) {
+    lo.href = ops;
+    lo.removeAttribute('hidden');
+    ext.removeAttribute('hidden');
+  } else {
+    lo.setAttribute('hidden', '');
+    lo.removeAttribute('href');
+    ext.setAttribute('hidden', '');
+  }
+}
+
+/**
  * @param {HTMLElement} mount
  */
 export function initProductMapping(mount) {
@@ -157,7 +180,6 @@ export function initProductMapping(mount) {
     footerNote: /** @type {HTMLElement | null} */ (mount.querySelector('#sp-pm-footerNote')),
     instruct: /** @type {HTMLElement | null} */ (mount.querySelector('#sp-pm-instruct')),
     external: /** @type {HTMLElement | null} */ (mount.querySelector('#sp-pm-external')),
-    linkMaster: /** @type {HTMLAnchorElement | null} */ (mount.querySelector('#sp-pm-linkMaster')),
     linkOps: /** @type {HTMLAnchorElement | null} */ (mount.querySelector('#sp-pm-linkOps')),
     btnReset: /** @type {HTMLButtonElement | null} */ (mount.querySelector('#sp-pm-reset')),
     resetNote: /** @type {HTMLElement | null} */ (mount.querySelector('#sp-pm-resetNote'))
@@ -184,38 +206,8 @@ export function initProductMapping(mount) {
     }
   }
 
-  /**
-   * GAS `productMappingState`의 URL로 Google 시트(드라이브) 열기 링크
-   * @param {Record<string, unknown>} d
-   */
   function updateExternalLinks(d) {
-    const ext = el.external;
-    const lm = el.linkMaster;
-    const lo = el.linkOps;
-    if (!ext || !lm || !lo) {
-      return;
-    }
-    const master = d && d.masterSpreadsheetUrl ? String(d.masterSpreadsheetUrl).trim() : '';
-    const ops = d && d.operationsSpreadsheetUrl ? String(d.operationsSpreadsheetUrl).trim() : '';
-    if (master && /^https?:\/\//i.test(master)) {
-      lm.href = master;
-      lm.removeAttribute('hidden');
-    } else {
-      lm.setAttribute('hidden', '');
-      lm.removeAttribute('href');
-    }
-    if (ops && /^https?:\/\//i.test(ops)) {
-      lo.href = ops;
-      lo.removeAttribute('hidden');
-    } else {
-      lo.setAttribute('hidden', '');
-      lo.removeAttribute('href');
-    }
-    if ((master && /^https?:\/\//i.test(master)) || (ops && /^https?:\/\//i.test(ops))) {
-      ext.removeAttribute('hidden');
-    } else {
-      ext.setAttribute('hidden', '');
-    }
+    applyProductMappingHeaderUrls(mount, d);
   }
 
   function recomputeDirty() {
@@ -230,6 +222,13 @@ export function initProductMapping(mount) {
     }
     if (el.apply) {
       el.apply.disabled = !dirty || !ready;
+      if (!ready) {
+        el.apply.title = '목록을 불러온 뒤 사용할 수 있습니다.';
+      } else if (!dirty) {
+        el.apply.title = '대분류·상태를 바꾼 뒤 누르면 시트에 반영됩니다.';
+      } else {
+        el.apply.removeAttribute('title');
+      }
     }
   }
 

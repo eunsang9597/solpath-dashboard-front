@@ -283,6 +283,22 @@ code {
   margin-bottom: 0.75rem;
 }
 
+/* 탭당 스프레드시트 1:1 — 동기화=집계(마스터), 상품분류=운영(분류) */
+.sp-sync-head__right,
+.sp-pm-head__right {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem 0.75rem;
+}
+
+.sp-sync-head__link {
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
 .panel h2 {
   font-size: 1.16rem;
   font-weight: 700;
