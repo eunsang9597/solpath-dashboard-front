@@ -1,53 +1,42 @@
 /**
- * 데이터 동기화 랜딩 마크업 (index / 아임웹 직접 삽입 공통).
- * id 는 sp- 로 시작해 위젯 호스트 페이지와 충돌 방지.
+ * id 접두 `sp-`
  */
 export const SYNC_PAGE_SHELL_HTML = `<div class="app-shell">
       <header class="app-header">
         <div class="brand">
           <span class="brand-mark" aria-hidden="true"></span>
           <div>
-            <p class="brand-kicker">내부 운영</p>
+            <p class="brand-kicker">내부</p>
             <h1>솔패스 대시보드</h1>
           </div>
         </div>
-        <p class="header-desc">
-          아임웹 Open API 기준으로 원천(회원·상품·주문)을 시트에 <strong>한 번에 맞춥니다</strong>.
-        </p>
+        <p class="header-desc">Open API → 시트 풀 스냅샷. 기존 시트 행 <strong>전부 덮어씀</strong>.</p>
       </header>
 
       <main class="app-main sp-app-main">
         <div class="sp-overlay" id="sp-loadingOverlay" hidden aria-hidden="true">
           <div class="sp-overlay-box">
-            <div class="sp-spinner" role="status" aria-label="로딩 중"></div>
-            <p class="sp-overlay-text">백엔드 응답을 기다리는 중…</p>
+            <div class="sp-spinner" role="status" aria-label="로딩"></div>
+            <p class="sp-overlay-text">처리 중</p>
           </div>
         </div>
         <section class="panel panel--hero" aria-labelledby="sp-sync-title">
           <div class="panel__head">
             <h2 id="sp-sync-title">데이터 동기화</h2>
-            <span class="chip chip--soft" id="sp-envChip" data-state="unknown">백엔드 미연결</span>
+            <span class="chip chip--soft" id="sp-envChip">미연결</span>
           </div>
-          <p class="lede">
-            기존 시트/아이스 데이터에 <strong>오류가 있거나</strong>, 수기로 손댄 뒤
-            <strong>전체를 다시 맞춰야 할 때</strong> 실행합니다. 주기·자동 갱신과는 별도로,
-            <strong>필요할 때만</strong> 누르는 작업이에요(부하·쿼터·실행시간).
-          </p>
-          <ul class="bullets">
-            <li>회원·상품·주문 스냅샷이 순서에 따라 갱신됩니다(백엔드 설계에 따름).</li>
-            <li>이미 올려 둔 전체를 덮어쓰는 <strong>풀 갱신</strong>이므로, 잠깐만 쓰는 뷰/임시는 따로 백업해 두는 걸 권장합니다.</li>
-          </ul>
+          <p class="lede">잘못 누르면 API·쿼터·실행시간 씀. 아래에 문구 똑같이 입력한 뒤에만 실행.</p>
           <div class="actions">
-            <button type="button" class="btn btn--primary" id="sp-btnSync" disabled>
-              전체 데이터 동기화
-            </button>
-            <p class="actions-note" id="sp-actionNote">백엔드 URL·토큰 연동 후 활성화됩니다.</p>
+            <label class="sp-confirm-label" for="sp-confirm">확인: <code>데이터 동기화</code> 입력</label>
+            <input type="text" class="sp-confirm" id="sp-confirm" name="sp-confirm" autocomplete="off" spellcheck="false" disabled placeholder="데이터 동기화" />
+            <button type="button" class="btn btn--primary" id="sp-btnSync" disabled>실행</button>
+            <p class="actions-note" id="sp-actionNote">Web App URL 없음</p>
           </div>
         </section>
 
-        <section class="panel" aria-label="상태">
-          <h3 class="panel__sub">이번 작업</h3>
-          <p class="mono-line" id="sp-statusLine">대기 중</p>
+        <section class="panel" aria-label="결과">
+          <h3 class="panel__sub">결과</h3>
+          <p class="mono-line" id="sp-statusLine">—</p>
           <p class="hint" id="sp-hintLine"></p>
           <div class="sp-success-actions" id="sp-successActions" hidden>
             <a
@@ -57,12 +46,8 @@ export const SYNC_PAGE_SHELL_HTML = `<div class="app-shell">
               target="_blank"
               rel="noopener noreferrer"
               hidden
-            >원천 DB 시트 열기 · 데이터 확인</a>
+            >시트 열기</a>
           </div>
         </section>
       </main>
-
-      <footer class="app-footer">
-        <p>jsDelivr·아임웹 위젯·GAS CORS는 <code>docs/IMWEB_CORS.md</code> 참고</p>
-      </footer>
     </div>`;

@@ -1,25 +1,11 @@
-<!--
-  ① 맨 위 <script> 의 gasBaseUrl·token 를 **진짜 값**으로 바꾼 뒤 저장.
-  ② 아래 jsDelivr URL 의 @뒤는 **GitHub 커밋 SHA** (캐시 막기). 코드 올릴 때마다
-     https://github.com/eunsang9597/solpath-dashboard-front/commits/main 에서 최신 커밋으로 갱신.
-  ③ <script type="module" src=...> 보다 __SOLPATH__ 가 **위**에 있어야 함.
--->
-<script>
-  window.__SOLPATH__ = {
-    gasBaseUrl: 'https://script.google.com/macros/s/배포ID-여기-바꿈/exec',
-    token: 'GAS_스크립트_속성_SOLPATH_DASHBOARD_TOKEN_와_동일'
-  };
-</script>
+<script>window.__SOLPATH__ = { gasBaseUrl: "https://script.google.com/macros/s/…/exec" };</script>
 <link
   rel="stylesheet"
   href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"
 />
 <link
   rel="stylesheet"
-  href="https://cdn.jsdelivr.net/gh/eunsang9597/solpath-dashboard-front@72538b2/css/styles.css"
+  href="https://cdn.jsdelivr.net/gh/eunsang9597/solpath-dashboard-front@main/css/styles.css"
 />
 <div id="solpath-root" class="solpath-mount" data-solpath-autofill="1" style="max-width:960px;margin:0 auto"></div>
-<script
-  type="module"
-  src="https://cdn.jsdelivr.net/gh/eunsang9597/solpath-dashboard-front@72538b2/js/app.js"
-></script>
+<script type="module" src="https://cdn.jsdelivr.net/gh/eunsang9597/solpath-dashboard-front@main/js/app.js"></script>

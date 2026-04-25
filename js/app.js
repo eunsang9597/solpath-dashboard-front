@@ -1,8 +1,9 @@
-import { GAS_MODE, GAS_BASE_URL, DASHBOARD_SYNC_API_TOKEN } from './config.js';
+import { GAS_MODE, GAS_BASE_URL } from './config.js';
 import { SYNC_PAGE_SHELL_HTML } from './syncPageTemplate.js';
 
 const MOUNT_ID = 'solpath-root';
 const syncAction = 'syncOpenFull';
+const SYNC_CONFIRM = '데이터 동기화';
 
 function getMount() {
   return document.getElementById(MOUNT_ID);
@@ -29,10 +30,13 @@ const statusLine = /** @type {HTMLElement | null} */ (scope.querySelector('#sp-s
 const hintLine = /** @type {HTMLElement | null} */ (scope.querySelector('#sp-hintLine'));
 const envChip = /** @type {HTMLElement | null} */ (scope.querySelector('#sp-envChip'));
 const btnSync = /** @type {HTMLButtonElement | null} */ (scope.querySelector('#sp-btnSync'));
+const confirmInput = /** @type {HTMLInputElement | null} */ (scope.querySelector('#sp-confirm'));
 const actionNote = /** @type {HTMLElement | null} */ (scope.querySelector('#sp-actionNote'));
 const loadingOverlay = /** @type {HTMLElement | null} */ (scope.querySelector('#sp-loadingOverlay'));
 const successActions = /** @type {HTMLElement | null} */ (scope.querySelector('#sp-successActions'));
 const sheetsLink = /** @type {HTMLAnchorElement | null} */ (scope.querySelector('#sp-sheetsLink'));
+
+let syncBusy = false;
 
 function setChip(text, kind) {
   if (!envChip) {
@@ -83,6 +87,27 @@ function setLoading(on) {
   }
 }
 
+function confirmOk() {
+  return Boolean(confirmInput && confirmInput.value.trim() === SYNC_CONFIRM);
+}
+
+function refreshSyncButtonState() {
+  if (!btnSync) {
+    return;
+  }
+  if (!GAS_MODE.canSync) {
+    btnSync.disabled = true;
+    if (confirmInput) {
+      confirmInput.disabled = true;
+    }
+    return;
+  }
+  if (confirmInput) {
+    confirmInput.disabled = false;
+  }
+  btnSync.disabled = syncBusy || !confirmOk();
+}
+
 /**
  * @param {string|undefined} url
  */
@@ -113,24 +138,21 @@ function hideSheetsButton() {
   }
 }
 
-/**
- * GAS `HttpOpenSync` `doPost` — `action=syncOpenFull` + `token`
- */
 async function postSyncOpenFull() {
   const url = String(GAS_BASE_URL).trim();
-  if (!url || !btnSync) {
+  if (!url || !btnSync || !confirmOk()) {
     return;
   }
   const body = new URLSearchParams();
   body.set('action', syncAction);
-  body.set('token', String(DASHBOARD_SYNC_API_TOKEN).trim());
 
+  syncBusy = true;
+  refreshSyncButtonState();
   hideSheetsButton();
   setLoading(true);
-  btnSync.disabled = true;
-  setStatus('요청을 보냈습니다. 응답을 기다리는 중… (동기는 수 분 걸릴 수 있음)');
+  setStatus('요청 전송. 수 분 걸릴 수 있음.');
   setHint('');
-  setChip('처리 중', 'soft');
+  setChip('처리', 'soft');
 
   try {
     const res = await fetch(url, {
@@ -144,24 +166,20 @@ async function postSyncOpenFull() {
       j = JSON.parse(text);
     } catch (_e) {
       setChip('오류', 'err');
-      setStatus('응답이 JSON이 아닙니다 (http ' + res.status + ').');
-      setHint(String(text).slice(0, 220));
+      setStatus('JSON 아님 (HTTP ' + res.status + ')');
+      setHint(String(text).slice(0, 200));
       return;
     }
     if (!j.ok) {
       setChip('실패', 'err');
       const err = j.error != null ? String(j.error) : 'ERROR';
       const msg = j.message != null ? String(j.message) : '';
-      if (err === 'UNAUTHORIZED') {
-        setStatus('인증 실패 — 토큰과 GAS Property SOLPATH_DASHBOARD_TOKEN 을 맞추세요.');
-      } else if (err === 'SYNC_FAILED') {
-        setStatus('동기화 중 오류: ' + (msg || '알 수 없음'));
+      if (err === 'SYNC_FAILED') {
+        setStatus('동기화 실패: ' + (msg || '—'));
       } else {
         setStatus(err + (msg ? ': ' + msg : ''));
       }
-      setHint(
-        err === 'UNAUTHORIZED' ? 'config.js DASHBOARD_SYNC_API_TOKEN 확인' : 'GAS Executions·sync_log 시트를 확인하세요'
-      );
+      setHint('Executions, sync_log 시트');
       return;
     }
 
@@ -171,35 +189,32 @@ async function postSyncOpenFull() {
     const p = d.products;
     const o = d.orders;
     setStatus(
-      '완료 — members ' +
+      '끝 — members ' +
         (m && m.rows != null ? m.rows : '—') +
-        '행 · products ' +
+        ' / products ' +
         (p && p.rows != null ? p.rows : '—') +
-        '행 · orders ' +
+        ' / orders ' +
         (o && o.orderRows != null ? o.orderRows : '—') +
-        '건 (품목 행 ' +
+        '건, 품목 ' +
         (o && o.itemRows != null ? o.itemRows : '—') +
-        ')'
+        '행'
     );
     const sheetUrl = d.spreadsheetUrl != null ? String(d.spreadsheetUrl).trim() : '';
     if (sheetUrl) {
       showSheetsButton(sheetUrl);
-      setHint('아래 버튼으로 원천 DB 시트를 열어 members · orders · order_items 를 확인하세요.');
+      setHint('시트는 아래');
     } else {
       hideSheetsButton();
-      setHint(
-        '동기는 끝났지만 시트 URL이 없습니다. GAS에 SHEETS_MASTER_ID(또는 dbSetupMasterDatabase) 를 설정하세요.'
-      );
+      setHint('SHEETS_MASTER_ID 없으면 URL 비움');
     }
   } catch (e) {
     setChip('오류', 'err');
-    setStatus('네트워크 오류: ' + (e && e.message != null ? e.message : String(e)));
-    setHint('CORS, 배포 URL, Web App "액세스 권한"·docs/IMWEB_CORS.md');
+    setStatus('네트: ' + (e && e.message != null ? e.message : String(e)));
+    setHint('CORS, 배포 URL, Web App 권한');
   } finally {
+    syncBusy = false;
     setLoading(false);
-    if (GAS_MODE.canSync) {
-      btnSync.disabled = false;
-    }
+    refreshSyncButtonState();
   }
 }
 
@@ -207,24 +222,26 @@ function wireSync() {
   if (!btnSync) {
     return;
   }
+  if (confirmInput) {
+    const onIn = function () {
+      refreshSyncButtonState();
+    };
+    confirmInput.addEventListener('input', onIn);
+    confirmInput.addEventListener('paste', onIn);
+  }
   if (!GAS_MODE.canSync) {
     btnSync.disabled = true;
-    btnSync.title =
-      '비활성: Web App exec URL + 토큰이 없음. 아임웹 위젯에서 app.js 위에 window.__SOLPATH__ = { gasBaseUrl, token } 를 넣으세요 (IMWEB_SNIPPET_INJECT.html).';
+    if (confirmInput) {
+      confirmInput.disabled = true;
+    }
     if (actionNote) {
-      if (GAS_MODE.useMock) {
-        actionNote.textContent =
-          'URL/토큰 없음 → 위젯에 __SOLPATH__ 주입 또는 로컬 config.js FALLBACK (레포 커밋 금지)';
-      } else {
-        actionNote.textContent = '토큰만 없음 → __SOLPATH__.token = GAS SOLPATH_DASHBOARD_TOKEN';
-      }
+      actionNote.textContent = 'exec URL 없음 — __SOLPATH__.gasBaseUrl';
     }
     return;
   }
-  btnSync.disabled = false;
-  btnSync.removeAttribute('title');
+  refreshSyncButtonState();
   if (actionNote) {
-    actionNote.textContent = 'Open API·unit·Sheets 마스터 준비 후(최대 ~6분). 실패 시 Executions·sync_log';
+    actionNote.textContent = 'Open API·쿼터. 실패 시 Executions·sync_log';
   }
   btnSync.addEventListener('click', function onSync() {
     postSyncOpenFull();
@@ -239,26 +256,14 @@ async function main() {
   }
   hideSheetsButton();
   if (GAS_MODE.useMock) {
-    setChip('로컬 / URL 없음', 'soft');
-    setStatus('대기 — Web App exec URL + 토큰이 아직 주입되지 않았습니다');
-    setHint(
-      '① 위젯 HTML 맨 **위**에 <script>window.__SOLPATH__={ gasBaseUrl, token }</script> (module보다 먼저) ② gasBaseUrl/token에 **실제 값** ③ jsDelivr는 @main 캐시될 수 있음 → app.js 를 @커밋SHA 로 (IMWEB_SNIPPET_INJECT.html)'
-    );
-    if (typeof globalThis !== 'undefined') {
-      console.info('[솔패스] __SOLPATH__ =', globalThis.__SOLPATH__, '— 비어 있으면 주입 스크립트·순서·캐시 확인');
-    }
+    setChip('로컬', 'soft');
+    setStatus('대기');
+    setHint('module보다 먼저 __SOLPATH__ = { gasBaseUrl }');
     wireSync();
     return;
   }
-  if (!GAS_MODE.canSync) {
-    setChip('토큰 없음', 'soft');
-    setStatus('GAS URL은 있음 — DASHBOARD_SYNC_API_TOKEN(=GAS SOLPATH_DASHBOARD_TOKEN)이 비어 있음');
-    setHint('공개 static 에 실토큰 넣지 말 것');
-    wireSync();
-    return;
-  }
-  setChip('연결됨', 'ok');
-  setStatus('전체 데이터 동기화: members → products(1p) → orders (백엔드 순서)');
+  setChip('연결', 'ok');
+  setStatus('members → products → orders');
   setHint('');
   wireSync();
 }
