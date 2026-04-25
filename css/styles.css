@@ -51,6 +51,22 @@ code {
   padding: clamp(1.25rem, 3vw, 2rem) clamp(1rem, 3vw, 1.5rem) 2.25rem;
 }
 
+/* 아임웹 본문/스킨이 #solpath-root·.app-shell에 큰 가로 margin을 줄 때(예: 557px) */
+#solpath-root.solpath-mount,
+.solpath-mount {
+  margin: 0 !important;
+  max-width: 100% !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.solpath-mount .app-shell {
+  margin: 0 !important;
+  max-width: 100% !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
 .app-header {
   margin-bottom: 1.5rem;
 }
