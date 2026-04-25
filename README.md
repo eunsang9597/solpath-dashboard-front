@@ -2,6 +2,11 @@
 
 내부용 운영 대시보드 **정적 프론트** (HTML / 바닐라 JS). 백엔드는 GAS Web App + 스프레드시트(메타·GAS는 [`solpath-dashboard`](https://github.com/eunsang9597/solpath-dashboard) 쪽).
 
+**원격 (동일 `main`을 양쪽에 푸시):**
+
+- 개인: [eunsang9597/solpath-dashboard-front](https://github.com/eunsang9597/solpath-dashboard-front) (`origin`)
+- Organization: [solpath-labs-dev/solpath-dashboard-front](https://github.com/solpath-labs-dev/solpath-dashboard-front) (`mirror`)
+
 ## 호스팅 (무료)
 
 - **jsDelivr**: `https://cdn.jsdelivr.net/gh/<owner>/solpath-dashboard-front@<branch|tag|commit>/...`
@@ -25,13 +30,11 @@ python3 -m http.server 8080
 - `js/config.js` — **팀 공개로 올릴 수 있는** 값만 (Web App `exec` URL 베이스 path 등).  
 - 비밀 토큰·Client Secret은 **레포에 넣지 말고** GAS Script Properties + 서버 측 검증만.
 
-## GitHub에 첫 푸시 (레포는 웹에서 빈 public 생성 후)
+## 푸시 (로컬 `front/`)
+
+기본은 `origin`을 추적한다. 양쪽에 맞출 때:
 
 ```bash
-cd front
-git remote add origin https://github.com/eunsang9597/solpath-dashboard-front.git
-git branch -M main
-git push -u origin main
+git push origin main
+git push mirror main
 ```
-
-Org `solpath-labs-dev` 쪽에도 동일 푸시하려면 `process.md`의 이중 remote 패턴(`mirror`)을 쓰면 됩니다.
