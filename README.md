@@ -7,6 +7,8 @@
 - 개인: [eunsang9597/solpath-dashboard-front](https://github.com/eunsang9597/solpath-dashboard-front) (`origin`)
 - Organization: [solpath-labs-dev/solpath-dashboard-front](https://github.com/solpath-labs-dev/solpath-dashboard-front) (`mirror`)
 
+**첫 화면** — 데이터 동기화(설명 + 버튼; 백 `POST` 붙이면 `js/config.js` 의 `ENABLE_SYNC_ACTION`). **아임웹 위젯**용 스니펫: [IMWEB_SNIPPET.html](./IMWEB_SNIPPET.html). **CORS/스크립트** 정리: [docs/IMWEB_CORS.md](./docs/IMWEB_CORS.md).
+
 ## 호스팅 (무료)
 
 - **jsDelivr**: `https://cdn.jsdelivr.net/gh/<owner>/solpath-dashboard-front@<branch|tag|commit>/...`
