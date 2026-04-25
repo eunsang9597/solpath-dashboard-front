@@ -34,6 +34,27 @@ const _PM_CAT_SET = (function () {
   return o;
 })();
 
+/**
+ * 시트·API에 허용 밖의 값(오타·옛날 키)이 오면, `<select>`에 `selected`가 없어
+ * 브라우저는 맨 앞(진행)만 보여 주는데 `localRows`는 그대로라 저장이 실패할 수 있음.
+ * 목록·DOM·전송을 모두 이 값으로 맞춤.
+ * @param {unknown} x
+ * @return {string}
+ */
+function normalizePmCategory_(x) {
+  const s = String(x != null ? x : '').trim() || 'unmapped';
+  return _PM_CAT_SET[s] ? s : 'unmapped';
+}
+
+/**
+ * @param {unknown} x
+ * @return {string}
+ */
+function normalizePmLifecycle_(x) {
+  const s = String(x != null ? x : '').trim() || 'active';
+  return _PM_LIFE_SET[s] ? s : 'active';
+}
+
 const NAME_MAX = 20;
 
 /**
@@ -422,6 +443,30 @@ export function initProductMapping(mount) {
     el.sections.querySelectorAll('select.sp-pm-sel--life').forEach(function (se) {
       se.addEventListener('change', onSelectChange);
     });
+    syncPmSelectsFromDom_();
+  }
+
+  /**
+   * 렌더 직후: 실제 select 값을 모델에 다시 씀(선택·표시 불일치 방지)
+   */
+  function syncPmSelectsFromDom_() {
+    if (!el.sections) {
+      return;
+    }
+    el.sections.querySelectorAll('select.sp-pm-sel--cat').forEach(function (se) {
+      const idx = parseInt(String(se.getAttribute('data-idx') != null ? se.getAttribute('data-idx') : ''), 10);
+      if (isNaN(idx) || idx < 0 || !localRows[idx]) {
+        return;
+      }
+      localRows[idx].internal_category = normalizePmCategory_(se.value);
+    });
+    el.sections.querySelectorAll('select.sp-pm-sel--life').forEach(function (se) {
+      const idx = parseInt(String(se.getAttribute('data-idx') != null ? se.getAttribute('data-idx') : ''), 10);
+      if (isNaN(idx) || idx < 0 || !localRows[idx]) {
+        return;
+      }
+      localRows[idx].lifecycle = normalizePmLifecycle_(se.value);
+    });
   }
 
   function buildSelectCat(dataIdx, val) {
@@ -480,9 +525,9 @@ export function initProductMapping(mount) {
       return;
     }
     if (t.classList.contains('sp-pm-sel--cat')) {
-      localRows[i].internal_category = String(t.value).trim();
+      localRows[i].internal_category = normalizePmCategory_(t.value);
     } else {
-      localRows[i].lifecycle = String(t.value).trim();
+      localRows[i].lifecycle = normalizePmLifecycle_(t.value);
     }
     recomputeDirty();
   }
@@ -530,12 +575,12 @@ export function initProductMapping(mount) {
       if (c === 'PM_BAD_LIFECYCLE') {
         return emsg.error.message != null && String(emsg.error.message).length
           ? String(emsg.error.message)
-          : '상태(진행·만료·테스트·(구)상품)를 서버에 저장할 수 없습니다. (구)상품이 막히면 GAS(구글 앱스) 최신 배포를 담당자에게 요청하세요.';
+          : '상태를 저장할 수 없습니다. 해당 줄에서 상태(진행·만료·테스트·(구)상품)를 다시 고른 뒤 저장하세요.';
       }
       if (c === 'PM_BAD_INTERNAL') {
         return emsg.error.message != null && String(emsg.error.message).length
           ? String(emsg.error.message)
-          : '내부 대분류를 서버에 저장할 수 없습니다. GAS를 최신으로 배포했는지 담당자에게 확인하세요.';
+          : '내부 대분류를 저장할 수 없습니다. 해당 줄에서 대분류를 다시 고른 뒤 저장하세요.';
       }
     }
     if (typeof emsg.error === 'string' && emsg.error.length) {
@@ -562,10 +607,10 @@ export function initProductMapping(mount) {
       return t;
     }
     if (t.indexOf('lifecycle') >= 0 && t.indexOf('허용') >= 0) {
-      return '상태(진행·만료·테스트·(구)상품)를 서버에 저장할 수 없습니다. (구)상품이 막히면 GAS(구글 앱스)를 최신으로 다시 배포했는지 담당자에게 확인하세요.';
+      return '상태를 저장할 수 없습니다. 해당 줄에서 상태를 다시 고른 뒤 저장하세요.';
     }
     if (t.indexOf('internal_category') >= 0 && t.indexOf('허용') >= 0) {
-      return '내부 대분류를 서버에 저장할 수 없습니다. GAS(구글 앱스)를 최신으로 다시 배포했는지 담당자에게 확인하세요.';
+      return '내부 대분류를 저장할 수 없습니다. 해당 줄에서 대분류를 다시 고른 뒤 저장하세요.';
     }
     return t;
   }
@@ -672,8 +717,8 @@ export function initProductMapping(mount) {
       localRows = JSON.parse(JSON.stringify(rows));
       for (let j = 0; j < localRows.length; j++) {
         const lr = localRows[j];
-        lr.internal_category = String(lr.internal_category != null ? lr.internal_category : 'unmapped').trim() || 'unmapped';
-        lr.lifecycle = String(lr.lifecycle != null ? lr.lifecycle : 'active').trim() || 'active';
+        lr.internal_category = normalizePmCategory_(lr.internal_category);
+        lr.lifecycle = normalizePmLifecycle_(lr.lifecycle);
       }
       snapshotBaseline();
       try {
@@ -765,20 +810,15 @@ export function initProductMapping(mount) {
     if (!el.apply || el.apply.disabled) {
       return;
     }
+    syncPmSelectsFromDom_();
     const dirty = [];
     for (let i = 0; i < localRows.length; i++) {
       const r = localRows[i];
       if (rowSig(r) !== baselineSig.get(pmRowKey_(r.prod_no))) {
         const pn = r.prod_no;
         const pnum = typeof pn === 'number' && !isNaN(pn) ? pn : parseInt(String(pn), 10);
-        let ic0 = String(r.internal_category != null ? r.internal_category : 'unmapped').trim() || 'unmapped';
-        if (!_PM_CAT_SET[ic0]) {
-          ic0 = 'unmapped';
-        }
-        let lf0 = String(r.lifecycle != null ? r.lifecycle : 'active').trim() || 'active';
-        if (!_PM_LIFE_SET[lf0]) {
-          lf0 = 'active';
-        }
+        const ic0 = normalizePmCategory_(r.internal_category);
+        const lf0 = normalizePmLifecycle_(r.lifecycle);
         dirty.push({
           prod_no: isNaN(pnum) ? pn : pnum,
           product_name: r.product_name,
