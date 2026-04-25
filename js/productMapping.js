@@ -289,18 +289,54 @@ export function initProductMapping(mount) {
       byCat[c] = [];
     });
     const list = getFilteredRows();
+    const testRows = [];
     for (let i = 0; i < list.length; i++) {
       const row = list[i];
+      if (String(row.lifecycle != null ? row.lifecycle : '').trim() === 'test') {
+        testRows.push(row);
+        continue;
+      }
       const c = CAT_ORDER.indexOf(row.internal_category) >= 0 ? row.internal_category : 'unmapped';
       byCat[c].push(row);
     }
     const counts = {};
+    let nTestAll = 0;
     for (let c = 0; c < localRows.length; c++) {
-      const k = localRows[c].internal_category;
+      const lr = localRows[c];
+      if (String(lr.lifecycle != null ? lr.lifecycle : '').trim() === 'test') {
+        nTestAll++;
+        continue;
+      }
+      const k = lr.internal_category;
       const key = CAT_ORDER.indexOf(k) >= 0 ? k : 'unmapped';
       counts[key] = (counts[key] || 0) + 1;
     }
     const parts = [];
+
+    function pushOneRowHtml(row2) {
+      const nameShort = displayNameShort(row2.product_name);
+      const full = row2.product_name != null ? String(row2.product_name) : '';
+      const rowPk = pmRowKey_(row2.prod_no);
+      const dataIdx = localRows.findIndex(function (x) {
+        return pmRowKey_(x.prod_no) === rowPk;
+      });
+      const selCat = buildSelectCat(dataIdx, row2.internal_category);
+      const selLife = buildSelectLife(dataIdx, row2.lifecycle);
+      parts.push(
+        '<div class="sp-pm-row" data-prod-no="' +
+          String(row2.prod_no) +
+          '"><span class="sp-pm-row__no">' +
+          escAttr(String(row2.prod_no)) +
+          '</span><span class="sp-pm-row__name" title="' +
+          escAttr(full) +
+          '">' +
+          escAttr(nameShort) +
+          '</span>' +
+          selCat +
+          selLife +
+          '</div>'
+      );
+    }
 
     function pushOneCategory(cat) {
       const label = CAT_LABEL[cat] || cat;
@@ -324,34 +360,7 @@ export function initProductMapping(mount) {
       );
       const rows2 = byCat[cat] || [];
       for (let r = 0; r < rows2.length; r++) {
-        const row2 = rows2[r];
-        const nameShort = displayNameShort(row2.product_name);
-        const full = row2.product_name != null ? String(row2.product_name) : '';
-        const rowPk = pmRowKey_(row2.prod_no);
-        const dataIdx = localRows.findIndex(function (x) {
-          return pmRowKey_(x.prod_no) === rowPk;
-        });
-        const selCat = buildSelectCat(dataIdx, row2.internal_category);
-        const selLife = buildSelectLife(dataIdx, row2.lifecycle);
-        const unmappedTest =
-          cat === 'unmapped' && String(row2.lifecycle != null ? row2.lifecycle : '') === 'test';
-        const rowMod = unmappedTest ? ' sp-pm-row--unmapped-test' : '';
-        parts.push(
-          '<div class="sp-pm-row' +
-            rowMod +
-            '" data-prod-no="' +
-            String(row2.prod_no) +
-            '"><span class="sp-pm-row__no">' +
-            escAttr(String(row2.prod_no)) +
-            '</span><span class="sp-pm-row__name" title="' +
-            escAttr(full) +
-            '">' +
-            escAttr(nameShort) +
-            '</span>' +
-            selCat +
-            selLife +
-            '</div>'
-        );
+        pushOneRowHtml(rows2[r]);
       }
       if (!rows2.length) {
         parts.push('<p class="sp-pm-empty">조건에 맞는 항목이 없습니다.</p>');
@@ -366,6 +375,29 @@ export function initProductMapping(mount) {
       pushOneCategory(CAT_ROW4[f]);
     }
     parts.push('</div>');
+
+    if (nTestAll > 0) {
+      const nT = testRows.length;
+      const openTest = nT > 0 ? ' open' : '';
+      parts.push('<div class="sp-pm-cat-block sp-pm-cat-block--lifecycle-test">');
+      parts.push(
+        '<details class="sp-pm-cat sp-pm-cat--lifecycle-test"' +
+          openTest +
+          ' data-cat="lifecycle-test"><summary class="sp-pm-cat__sum"><span class="sp-pm-cat__title">상태·테스트' +
+          '</span><span class="sp-pm-cat__badge">' +
+          escAttr(String(nTestAll) + '개') +
+          '</span> <span class="sp-pm-cat__n">' +
+          nT +
+          '개 표시</span></summary><div class="sp-pm-cat__body">'
+      );
+      for (let tr = 0; tr < testRows.length; tr++) {
+        pushOneRowHtml(testRows[tr]);
+      }
+      if (!testRows.length) {
+        parts.push('<p class="sp-pm-empty">조건에 맞는 항목이 없습니다.</p>');
+      }
+      parts.push('</div></details></div>');
+    }
 
     el.sections.innerHTML = parts.join('');
     el.sections.querySelectorAll('select.sp-pm-sel--cat').forEach(function (se) {
