@@ -155,7 +155,10 @@ export function initProductMapping(mount) {
     search: /** @type {HTMLInputElement | null} */ (mount.querySelector('#sp-pm-search')),
     onlyUnmapped: /** @type {HTMLInputElement | null} */ (mount.querySelector('#sp-pm-onlyUnmapped')),
     footerNote: /** @type {HTMLElement | null} */ (mount.querySelector('#sp-pm-footerNote')),
-    instruct: /** @type {HTMLElement | null} */ (mount.querySelector('#sp-pm-instruct'))
+    instruct: /** @type {HTMLElement | null} */ (mount.querySelector('#sp-pm-instruct')),
+    external: /** @type {HTMLElement | null} */ (mount.querySelector('#sp-pm-external')),
+    linkMaster: /** @type {HTMLAnchorElement | null} */ (mount.querySelector('#sp-pm-linkMaster')),
+    linkOps: /** @type {HTMLAnchorElement | null} */ (mount.querySelector('#sp-pm-linkOps'))
   };
   if (!el.init || !el.sections) {
     return;
@@ -176,6 +179,40 @@ export function initProductMapping(mount) {
       el.hint.removeAttribute('hidden');
     } else {
       el.hint.setAttribute('hidden', '');
+    }
+  }
+
+  /**
+   * GAS `productMappingState`의 URL로 Google 시트(드라이브) 열기 링크
+   * @param {Record<string, unknown>} d
+   */
+  function updateExternalLinks(d) {
+    const ext = el.external;
+    const lm = el.linkMaster;
+    const lo = el.linkOps;
+    if (!ext || !lm || !lo) {
+      return;
+    }
+    const master = d && d.masterSpreadsheetUrl ? String(d.masterSpreadsheetUrl).trim() : '';
+    const ops = d && d.operationsSpreadsheetUrl ? String(d.operationsSpreadsheetUrl).trim() : '';
+    if (master && /^https?:\/\//i.test(master)) {
+      lm.href = master;
+      lm.removeAttribute('hidden');
+    } else {
+      lm.setAttribute('hidden', '');
+      lm.removeAttribute('href');
+    }
+    if (ops && /^https?:\/\//i.test(ops)) {
+      lo.href = ops;
+      lo.removeAttribute('hidden');
+    } else {
+      lo.setAttribute('hidden', '');
+      lo.removeAttribute('href');
+    }
+    if ((master && /^https?:\/\//i.test(master)) || (ops && /^https?:\/\//i.test(ops))) {
+      ext.removeAttribute('hidden');
+    } else {
+      ext.setAttribute('hidden', '');
     }
   }
 
@@ -420,6 +457,7 @@ export function initProductMapping(mount) {
   async function loadState() {
     if (!GAS_MODE.canSync) {
       setHint('GAS Web App URL이 주입되지 않았습니다.', true);
+      updateExternalLinks({});
       return;
     }
     if (loadStateInflight) {
@@ -434,9 +472,11 @@ export function initProductMapping(mount) {
       const st = await gasJsonpWithParams(url, 'productMappingState', null, 60000);
       if (!st || !st.ok) {
         setHint(errMsg(st), true);
+        updateExternalLinks({});
         return;
       }
       const d = st.data || {};
+      updateExternalLinks(d);
       ready = Boolean(d.ready);
       if (el.init) {
         if (!ready) {
@@ -465,6 +505,7 @@ export function initProductMapping(mount) {
       syncFooterAndInstruct();
     } catch (_e) {
       setHint('상태를 불러오지 못했습니다.', true);
+      updateExternalLinks({});
     } finally {
       loadStateInflight = false;
       if (el.listLoading) {
@@ -496,6 +537,12 @@ export function initProductMapping(mount) {
             el.sections.setAttribute('hidden', '');
             el.sections.innerHTML = '';
           }
+          try {
+            const stR = await gasJsonpWithParams(url, 'productMappingState', null, 30000);
+            if (stR && stR.ok && stR.data) {
+              updateExternalLinks(stR.data);
+            }
+          } catch (_s) {}
         }
         setHint(errMsg(res), true);
         syncFooterAndInstruct();
@@ -552,6 +599,12 @@ export function initProductMapping(mount) {
       if (el.sections) {
         el.sections.removeAttribute('hidden');
       }
+      try {
+        const stNew = await gasJsonpWithParams(url, 'productMappingState', null, 30000);
+        if (stNew && stNew.ok && stNew.data) {
+          updateExternalLinks(stNew.data);
+        }
+      } catch (_s) {}
       await loadList();
     } catch (_e) {
       setHint('스프레드시트를 만들지 못했습니다.', true);

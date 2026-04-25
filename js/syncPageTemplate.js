@@ -101,6 +101,26 @@ export const SYNC_PAGE_SHELL_HTML = `<div class="app-shell app-shell--v9">
             <div class="panel__head">
               <h2 class="sp-panel-eyebrow" id="sp-pm-eyebrow">상품 항목 분류</h2>
               <div class="sp-pm-hero__actions" id="sp-pm-heroActions">
+                <div class="sp-pm-external" id="sp-pm-external" hidden>
+                  <a
+                    class="sp-pm-external__link"
+                    id="sp-pm-linkMaster"
+                    href="#"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    hidden
+                    >원천 DB 열기</a
+                  >
+                  <a
+                    class="sp-pm-external__link"
+                    id="sp-pm-linkOps"
+                    href="#"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    hidden
+                    >운영 DB(분류) 열기</a
+                  >
+                </div>
                 <button type="button" class="btn btn--secondary" id="sp-pm-apply" disabled>수정하기</button>
               </div>
             </div>
