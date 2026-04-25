@@ -1,6 +1,7 @@
 import { GAS_MODE, GAS_BASE_URL } from './config.js';
 import { SYNC_PAGE_SHELL_HTML } from './syncPageTemplate.js';
 import { applyProductMappingHeaderUrls, initProductMapping } from './productMapping.js';
+import { initAnalytics } from './analytics.js';
 
 const MOUNT_ID = 'solpath-root';
 const syncAction = 'syncOpenFull';
@@ -47,27 +48,51 @@ function wireTabs_() {
   }
   const tSync = mount.querySelector('#sp-tab-sync');
   const tPm = mount.querySelector('#sp-tab-pm');
+  const tAn = mount.querySelector('#sp-tab-an');
   const pSync = mount.querySelector('#sp-panel-sync');
   const pPm = mount.querySelector('#sp-panel-pm');
-  if (!tSync || !tPm || !pSync || !pPm) {
+  const pAn = mount.querySelector('#sp-panel-an');
+  if (!tSync || !tPm || !tAn || !pSync || !pPm || !pAn) {
     return;
   }
   const introSync = /** @type {HTMLElement | null} */ (mount.querySelector('#sp-introSync'));
   const introPm = /** @type {HTMLElement | null} */ (mount.querySelector('#sp-introPm'));
+  const introAn = /** @type {HTMLElement | null} */ (mount.querySelector('#sp-introAn'));
   function setIntroTab_(which) {
     if (which === 'pm') {
       if (introSync) {
         introSync.setAttribute('hidden', '');
         introSync.setAttribute('aria-hidden', 'true');
       }
+      if (introAn) {
+        introAn.setAttribute('hidden', '');
+        introAn.setAttribute('aria-hidden', 'true');
+      }
       if (introPm) {
         introPm.removeAttribute('hidden');
         introPm.setAttribute('aria-hidden', 'false');
+      }
+    } else if (which === 'an') {
+      if (introSync) {
+        introSync.setAttribute('hidden', '');
+        introSync.setAttribute('aria-hidden', 'true');
+      }
+      if (introPm) {
+        introPm.setAttribute('hidden', '');
+        introPm.setAttribute('aria-hidden', 'true');
+      }
+      if (introAn) {
+        introAn.removeAttribute('hidden');
+        introAn.setAttribute('aria-hidden', 'false');
       }
     } else {
       if (introPm) {
         introPm.setAttribute('hidden', '');
         introPm.setAttribute('aria-hidden', 'true');
+      }
+      if (introAn) {
+        introAn.setAttribute('hidden', '');
+        introAn.setAttribute('aria-hidden', 'true');
       }
       if (introSync) {
         introSync.removeAttribute('hidden');
@@ -75,34 +100,53 @@ function wireTabs_() {
       }
     }
   }
-  function activateSync() {
-    tSync.classList.add('is-active');
-    tSync.setAttribute('aria-selected', 'true');
-    tSync.tabIndex = 0;
-    tPm.classList.remove('is-active');
-    tPm.setAttribute('aria-selected', 'false');
-    tPm.tabIndex = -1;
-    pSync.classList.add('is-active');
-    pSync.removeAttribute('hidden');
-    pPm.classList.remove('is-active');
-    pPm.setAttribute('hidden', '');
-    setIntroTab_('sync');
-  }
-  function activatePm() {
-    tPm.classList.add('is-active');
-    tPm.setAttribute('aria-selected', 'true');
-    tPm.tabIndex = 0;
+  function deactivateAllTabs_() {
     tSync.classList.remove('is-active');
     tSync.setAttribute('aria-selected', 'false');
     tSync.tabIndex = -1;
-    pPm.classList.add('is-active');
-    pPm.removeAttribute('hidden');
+    tPm.classList.remove('is-active');
+    tPm.setAttribute('aria-selected', 'false');
+    tPm.tabIndex = -1;
+    tAn.classList.remove('is-active');
+    tAn.setAttribute('aria-selected', 'false');
+    tAn.tabIndex = -1;
     pSync.classList.remove('is-active');
     pSync.setAttribute('hidden', '');
+    pPm.classList.remove('is-active');
+    pPm.setAttribute('hidden', '');
+    pAn.classList.remove('is-active');
+    pAn.setAttribute('hidden', '');
+  }
+  function activateSync() {
+    deactivateAllTabs_();
+    tSync.classList.add('is-active');
+    tSync.setAttribute('aria-selected', 'true');
+    tSync.tabIndex = 0;
+    pSync.classList.add('is-active');
+    pSync.removeAttribute('hidden');
+    setIntroTab_('sync');
+  }
+  function activatePm() {
+    deactivateAllTabs_();
+    tPm.classList.add('is-active');
+    tPm.setAttribute('aria-selected', 'true');
+    tPm.tabIndex = 0;
+    pPm.classList.add('is-active');
+    pPm.removeAttribute('hidden');
     setIntroTab_('pm');
+  }
+  function activateAn() {
+    deactivateAllTabs_();
+    tAn.classList.add('is-active');
+    tAn.setAttribute('aria-selected', 'true');
+    tAn.tabIndex = 0;
+    pAn.classList.add('is-active');
+    pAn.removeAttribute('hidden');
+    setIntroTab_('an');
   }
   tSync.addEventListener('click', activateSync);
   tPm.addEventListener('click', activatePm);
+  tAn.addEventListener('click', activateAn);
   setIntroTab_('sync');
 }
 
@@ -403,6 +447,7 @@ async function main() {
   }
   wireTabs_();
   initProductMapping(mount);
+  const anApi = initAnalytics(mount);
   hideSheetsButton();
   setSyncAggregateHeadLink('');
   if (GAS_MODE.useMock) {
@@ -425,6 +470,9 @@ async function main() {
       setSyncAggregateHeadLink(mu);
       if (mount) {
         applyProductMappingHeaderUrls(mount, d);
+        if (anApi && typeof anApi.applyStateFromData === 'function') {
+          anApi.applyStateFromData(d);
+        }
       }
     }
   } catch (_e) {

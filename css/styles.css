@@ -285,14 +285,185 @@ code {
   margin-bottom: 0.75rem;
 }
 
-/* 탭당 스프레드시트 1:1 — 동기화=집계(마스터), 상품분류=운영(분류) */
+/* 탭당 스프레드시트 1:1 — 동기화=집계(마스터), 상품분류=운영(분류), 매출·건수=집계·분석 */
 .sp-sync-head__right,
-.sp-pm-head__right {
+.sp-pm-head__right,
+.sp-an-head__right {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: flex-end;
   gap: 0.5rem 0.75rem;
+}
+
+.sp-an-subtabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.5rem;
+  margin: 0.5rem 0 0.35rem;
+}
+
+.sp-an-subtabs__btn {
+  font: inherit;
+  font-size: calc(0.86rem + var(--sp-text-bump));
+  font-weight: 600;
+  padding: 0.4em 0.85em;
+  border-radius: 999px;
+  border: 1px solid rgba(11, 92, 173, 0.25);
+  background: #fff;
+  color: #0a4a7a;
+  cursor: pointer;
+  line-height: 1.3;
+}
+
+.sp-an-subtabs__btn:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+.sp-an-subtabs__btn.is-active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.sp-an-subtabs__lede {
+  margin: 0 0 0.65rem;
+  font-size: calc(0.88rem + var(--sp-text-bump));
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.sp-an-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem 1rem;
+  margin: 0 0 0.75rem;
+  align-items: flex-end;
+}
+
+.sp-an-filters__f .sp-confirm {
+  min-width: 7.5rem;
+}
+
+.sp-an-table-wrap {
+  margin: 0.25rem 0 1rem;
+}
+
+.sp-an-table-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+}
+
+.sp-an-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: calc(0.86rem + var(--sp-text-bump));
+}
+
+.sp-an-table th,
+.sp-an-table td {
+  padding: 0.45rem 0.55rem;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+
+.sp-an-table th {
+  background: #f3f6fb;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.sp-an-table tr:last-child td {
+  border-bottom: none;
+}
+
+.sp-an-table code {
+  font-size: 0.95em;
+}
+
+.sp-an-table--mode-sales .sp-an-table__em-sales {
+  font-weight: 700;
+  color: #0a4a7a;
+}
+
+.sp-an-table--mode-sales .sp-an-table__em-count {
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.sp-an-table--mode-count .sp-an-table__em-count {
+  font-weight: 700;
+  color: #0a4a7a;
+}
+
+.sp-an-table--mode-count .sp-an-table__em-sales {
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.sp-an-add {
+  margin-top: 0.5rem;
+  padding-top: 0.85rem;
+  border-top: 1px dashed var(--line);
+}
+
+.sp-an-add__title {
+  margin: 0 0 0.5rem;
+  font-size: calc(0.92rem + var(--sp-text-bump));
+  font-weight: 600;
+  color: #222830;
+}
+
+.sp-an-add__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+  align-items: flex-end;
+  margin-bottom: 0.45rem;
+}
+
+.sp-an-add__row label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: calc(0.82rem + var(--sp-text-bump));
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.sp-an-add__row .sp-confirm {
+  min-width: 5rem;
+}
+
+.sp-an-add__notes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: calc(0.82rem + var(--sp-text-bump));
+  color: var(--muted);
+  font-weight: 600;
+  margin-bottom: 0.55rem;
+}
+
+.sp-an-add__notes .sp-confirm {
+  width: 100%;
+  max-width: 28rem;
+}
+
+.sp-an-add__ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 0.6rem;
+  margin-top: 0.35rem;
+}
+
+.sp-an-row-del {
+  font-size: calc(0.8rem + var(--sp-text-bump)) !important;
+  padding: 0.28em 0.55em !important;
 }
 
 .sp-sync-head__link {

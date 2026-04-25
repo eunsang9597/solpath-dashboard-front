@@ -33,6 +33,16 @@ export const SYNC_PAGE_SHELL_HTML = `<div class="app-shell app-shell--v9">
               <li><strong>미분류만</strong>을 켜면 <strong>내부 대분류가「미분류」</strong>로 남은 품목만 볼 수 있습니다. 검색은 <strong>상품 이름·상품 번호</strong>에 맞습니다.</li>
             </ul>
           </div>
+          <div class="sp-intro-card sp-intro-card--an" id="sp-introAn" hidden>
+            <p class="sp-intro-title">매출·건수 집계 · 사용 안내</p>
+            <ul class="sp-intro-list">
+              <li>팀 흐름: <strong>집계(마스터)</strong>에 원천·숫자, <strong>운영(분류)</strong>에 품목 분류, <strong>집계·분석</strong> 전용 구글 시트(이 탭)에 <strong>매출·건수 목표</strong> 등 리포트용 롱 데이터를 둡니다. 파일이 다르므로, 상단 <strong>집계·분석 시트 열기</strong>로 구분해 둡니다.</li>
+              <li>탭 안 <strong>「kpi_매출건수_목표」</strong> 시트(탭)가 목표의 저장 위치입니다. <strong>시트에 반영</strong>을 누르면 대시보드에 적은 줄이 그대로 시트에 덮어쓰기됩니다(시트 ↔ 화면 동기).</li>
+              <li><strong>범위</strong>가 <strong>대분류</strong>이면 키는 <code>solpass</code>·<code>unmapped</code> 등 내부 분류 키(영문)를, <strong>상품</strong>이면 <strong>상품 번호</strong>를 넣습니다. <strong>월</strong>이 <strong>0</strong>이면 그 <strong>연</strong>도 기준의 한 줄(연간) 목표로 둡니다.</li>
+              <li>아래 <strong>매출</strong> / <strong>건수</strong>는 같은 표에서 강조만 바꾼 뷰입니다(차트·집계는 이후 붙이기 쉬운 뼈대). 필터(연·월)는 화면에서만 걸고, 시트에 있는 <strong>전체 행</strong>을 불러옵니다.</li>
+              <li><strong>전부 초기화</strong>는 목표·(예약)일별 집계 캐시 본문을 모두 비웁니다. 팀에 공지한 뒤에만 누릅니다.</li>
+            </ul>
+          </div>
         </div>
       </header>
 
@@ -56,6 +66,15 @@ export const SYNC_PAGE_SHELL_HTML = `<div class="app-shell app-shell--v9">
             aria-controls="sp-panel-pm"
             tabindex="-1"
           >상품 항목 분류</button>
+          <button
+            type="button"
+            class="sp-tabs__btn"
+            id="sp-tab-an"
+            role="tab"
+            aria-selected="false"
+            aria-controls="sp-panel-an"
+            tabindex="-1"
+          >매출·건수 집계</button>
         </nav>
 
         <main class="app-main sp-app-main" id="sp-main">
@@ -169,6 +188,102 @@ export const SYNC_PAGE_SHELL_HTML = `<div class="app-shell app-shell--v9">
               <div class="sp-pm__loading" id="sp-pm-listLoading" hidden>불러오는 중</div>
               <div class="sp-pm-sections" id="sp-pm-sections" hidden></div>
               <p class="actions-note sp-pm__footer-note" id="sp-pm-footerNote" hidden>편집한 뒤 <strong>수정하기</strong>로 시트에 반영합니다. 드롭다운을 바꾸면 <strong>수정하기</strong>가 켜집니다.</p>
+            </div>
+          </div>
+        </section>
+
+        <section
+          class="sp-tab-panel"
+          id="sp-panel-an"
+          role="tabpanel"
+          aria-labelledby="sp-tab-an"
+          hidden
+        >
+          <div class="panel panel--hero" id="sp-an-root">
+            <div class="panel__head sp-an-head">
+              <h2 class="sp-panel-eyebrow" id="sp-an-eyebrow">매출·건수 집계</h2>
+              <div class="sp-an-head__right" id="sp-an-external" hidden>
+                <a
+                  class="btn btn--secondary sp-sync-head__link"
+                  id="sp-an-linkSheet"
+                  href="#"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  hidden
+                >집계·분석 시트 열기</a>
+              </div>
+            </div>
+            <div class="sp-confirm-block sp-an-block" id="sp-an-block">
+              <p class="sp-confirm-instruct" id="sp-an-instruct">
+                <strong>매출·건수 목표</strong>는 <strong>집계·분석</strong> 전용 스프레드시트의 <strong>「kpi_매출건수_목표」</strong> 탭에 저장합니다. Drive 위치는 집계(마스터)·운영(분류)과 <strong>다른 파일</strong>입니다. 처음이면 <strong>집계 시트 준비</strong>로 만듭니다.
+              </p>
+              <p class="sp-pm__hint" id="sp-an-hint" hidden></p>
+              <div class="sp-pm-init" id="sp-an-init" hidden>
+                <div class="sp-confirm-row sp-pm-init__row">
+                  <button type="button" class="btn btn--primary" id="sp-an-btnInit">집계 시트 준비</button>
+                </div>
+              </div>
+              <div id="sp-an-body" hidden>
+                <div class="sp-an-subtabs" role="tablist" aria-label="지표">
+                  <button type="button" class="sp-an-subtabs__btn is-active" id="sp-an-subSales" role="tab" aria-selected="true" aria-controls="sp-an-tableWrap" tabindex="0">매출</button>
+                  <button type="button" class="sp-an-subtabs__btn" id="sp-an-subCount" role="tab" aria-selected="false" aria-controls="sp-an-tableWrap" tabindex="-1">건수</button>
+                </div>
+                <p class="sp-an-subtabs__lede" id="sp-an-subLede" aria-live="polite">매출 목표(원) 열을 강조한 뷰입니다.</p>
+                <div class="sp-an-filters" id="sp-an-filters">
+                  <label class="sp-an-filters__f"><span class="sp-pm-filters__lbl">연도</span>
+                    <select class="sp-confirm" id="sp-an-filterYear" title="화면에 보일 행만 걸러 냅니다"></select>
+                  </label>
+                  <label class="sp-an-filters__f"><span class="sp-pm-filters__lbl">월</span>
+                    <select class="sp-confirm" id="sp-an-filterMonth" title="0=연간(월 구분 없음) 포함"></select>
+                  </label>
+                </div>
+                <div class="sp-pm__loading" id="sp-an-loading" hidden>불러오는 중</div>
+                <div class="sp-an-table-wrap" id="sp-an-tableWrap" role="tabpanel" aria-labelledby="sp-an-subSales">
+                  <div class="sp-an-table-scroll">
+                    <table class="sp-an-table sp-an-table--mode-sales" id="sp-an-table">
+                      <thead>
+                        <tr>
+                          <th>연</th>
+                          <th>월</th>
+                          <th>범위</th>
+                          <th>키</th>
+                          <th class="sp-an-table__em-sales">매출목표(원)</th>
+                          <th class="sp-an-table__em-count">건수목표</th>
+                          <th>비고</th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                      <tbody id="sp-an-tbody"></tbody>
+                    </table>
+                  </div>
+                </div>
+                <div class="sp-an-add" id="sp-an-form">
+                  <p class="sp-an-add__title">한 줄 추가</p>
+                  <div class="sp-an-add__row">
+                    <label>연 <input type="number" class="sp-confirm" id="sp-an-inY" min="2000" max="2100" step="1" /></label>
+                    <label>월
+                      <select class="sp-confirm" id="sp-an-inM" title="0은 연간"></select>
+                    </label>
+                    <label>범위
+                      <select class="sp-confirm" id="sp-an-inScope">
+                        <option value="category">대분류</option>
+                        <option value="product">상품</option>
+                      </select>
+                    </label>
+                    <label>키 <input type="text" class="sp-confirm" id="sp-an-inKey" placeholder="solpass 또는 상품번호" spellcheck="false" /></label>
+                    <label>매출(원) <input type="number" class="sp-confirm" id="sp-an-inAmt" min="0" step="1" /></label>
+                    <label>건수 <input type="number" class="sp-confirm" id="sp-an-inCnt" min="0" step="1" /></label>
+                  </div>
+                  <label class="sp-an-add__notes">비고
+                    <input type="text" class="sp-confirm" id="sp-an-inNotes" maxlength="200" />
+                  </label>
+                  <div class="sp-an-add__ctas">
+                    <button type="button" class="btn btn--secondary" id="sp-an-btnAdd">목록에 넣기</button>
+                    <button type="button" class="btn btn--primary" id="sp-an-btnSave">시트에 반영</button>
+                    <button type="button" class="btn btn--danger" id="sp-an-btnReset">전부 초기화</button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </section>
