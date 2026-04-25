@@ -29,9 +29,9 @@ python3 -m http.server 8080
 
 ## 설정
 
-- `GAS_BASE_URL` — Web App `…/exec` **전체** URL.  
-- `DASHBOARD_SYNC_API_TOKEN` — GAS `SOLPATH_DASHBOARD_TOKEN` Property 와 동일(공개 static 에 실값 **커밋 금지**).  
-- Client Secret 등은 GAS Property만.
+- **아임웹·jsDelivr** — 레포 `config.js`는 URL/토큰을 **비워 둠**. 위젯에서 **`app.js`보다 먼저** `window.__SOLPATH__ = { gasBaseUrl, token }` 주입 → [IMWEB_SNIPPET_INJECT.html](./IMWEB_SNIPPET_INJECT.html) 예시.  
+- **로컬** — `js/config.js`의 `FALLBACK_*` 또는 동일 `__SOLPATH__` (실값 **git push 금지**).  
+- GAS Property `SOLPATH_DASHBOARD_TOKEN` = `token` 과 동일.
 
 ## 푸시 (로컬 `front/`)
 

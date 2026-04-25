@@ -209,16 +209,20 @@ function wireSync() {
   }
   if (!GAS_MODE.canSync) {
     btnSync.disabled = true;
+    btnSync.title =
+      '비활성: Web App exec URL + 토큰이 없음. 아임웹 위젯에서 app.js 위에 window.__SOLPATH__ = { gasBaseUrl, token } 를 넣으세요 (IMWEB_SNIPPET_INJECT.html).';
     if (actionNote) {
       if (GAS_MODE.useMock) {
-        actionNote.textContent = 'GAS_BASE_URL + DASHBOARD_SYNC_API_TOKEN (GAS Property와 동일, 레포엔 토큰 커밋 금지)';
+        actionNote.textContent =
+          'URL/토큰 없음 → 위젯에 __SOLPATH__ 주입 또는 로컬 config.js FALLBACK (레포 커밋 금지)';
       } else {
-        actionNote.textContent = 'DASHBOARD_SYNC_API_TOKEN — Script Property SOLPATH_DASHBOARD_TOKEN 과 같은 값';
+        actionNote.textContent = '토큰만 없음 → __SOLPATH__.token = GAS SOLPATH_DASHBOARD_TOKEN';
       }
     }
     return;
   }
   btnSync.disabled = false;
+  btnSync.removeAttribute('title');
   if (actionNote) {
     actionNote.textContent = 'Open API·unit·Sheets 마스터 준비 후(최대 ~6분). 실패 시 Executions·sync_log';
   }

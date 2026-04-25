@@ -1,13 +1,17 @@
 <!--
-  Plan B — iframe 막힐 때. 코드 위젯에 그대로 붙이기 (jsDelivr 절대경로).
+  Plan B — iframe 막힐 때. **아래 `<script>window.__SOLPATH__` 를 꼭 넣어야** 동기 버튼이 살아남.
+  (GitHub의 config.js 는 URL/토큰을 비워 두므로, 위젯에서만 주입하는 방식.)
+
   @main → @<커밋SHA> 로 캐시 고정.
 
-  **크기**
-  - 아임웹: 섹션/열 너비·여백은 에디터(틀). 이 위젯은 그 안에 들어감.
-  - #solpath-root style: `max-width:960px` → `100%` 이면 열 꽉 채움.
-  - 안쪽 상한: CSS 변수 `--solpath-shell-max` (기본 42rem). 이 div에만
-    `style="…;--solpath-shell-max:min(100%,56rem)"` 등으로 조절.
+  **크기** — #solpath-root 의 max-width, --solpath-shell-max 등은 docs/README 참고.
 -->
+<script>
+  window.__SOLPATH__ = {
+    gasBaseUrl: 'https://script.google.com/macros/s/여기배포ID/exec',
+    token: 'GAS Script Property SOLPATH_DASHBOARD_TOKEN 과 동일한 문자열'
+  };
+</script>
 <link
   rel="stylesheet"
   href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"
