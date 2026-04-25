@@ -13,12 +13,12 @@ const CAT_LABEL = {
 };
 const LIFE_LABEL = { active: '진행', archived: '만료', test: '테스트' };
 
-const NAME_MAX = 12;
+const NAME_MAX = 20;
 
 /**
  * @param {string|undefined} s
  */
-function displayName12(s) {
+function displayNameShort(s) {
   const t = s != null ? String(s) : '';
   if (t.length <= NAME_MAX) {
     return t;
@@ -244,14 +244,16 @@ export function initProductMapping(mount) {
       counts[key] = (counts[key] || 0) + 1;
     }
     const parts = [];
-    for (let u = 0; u < CAT_ORDER.length; u++) {
-      const cat = CAT_ORDER[u];
+
+    function pushOneCategory(cat) {
       const label = CAT_LABEL[cat] || cat;
       const n = byCat[cat] ? byCat[cat].length : 0;
       const openAttr = cat === 'unmapped' ? ' open' : '';
       const badge = (counts[cat] != null ? counts[cat] : 0) + '개';
       parts.push(
-        '<details class="sp-pm-cat"' +
+        '<details class="sp-pm-cat sp-pm-cat--' +
+          escAttr(cat) +
+          '"' +
           openAttr +
           ' data-cat="' +
           escAttr(cat) +
@@ -266,7 +268,7 @@ export function initProductMapping(mount) {
       const rows2 = byCat[cat] || [];
       for (let r = 0; r < rows2.length; r++) {
         const row2 = rows2[r];
-        const nameShort = displayName12(row2.product_name);
+        const nameShort = displayNameShort(row2.product_name);
         const full = row2.product_name != null ? String(row2.product_name) : '';
         const dataIdx = localRows.findIndex(function (x) {
           return x.prod_no === row2.prod_no;
@@ -293,6 +295,15 @@ export function initProductMapping(mount) {
       }
       parts.push('</div></details>');
     }
+
+    parts.push('<div class="sp-pm-cat-block sp-pm-cat-block--unmapped">');
+    pushOneCategory('unmapped');
+    parts.push('</div><div class="sp-pm-cat-row" role="presentation">');
+    for (let f = 0; f < CAT_ROW4.length; f++) {
+      pushOneCategory(CAT_ROW4[f]);
+    }
+    parts.push('</div>');
+
     el.sections.innerHTML = parts.join('');
     el.sections.querySelectorAll('select.sp-pm-sel--cat').forEach(function (se) {
       se.addEventListener('change', onSelectChange);
