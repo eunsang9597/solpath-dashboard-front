@@ -4,6 +4,10 @@
 import { GAS_BASE_URL, GAS_MODE } from './config.js';
 
 const CAT_ORDER = ['unmapped', 'solpass', 'solutine', 'challenge', 'textbook'];
+/** 미분류(unmapped) 제외 4칸 — 한 행에 솔패스~교재 */
+const CAT_ROW4 = CAT_ORDER.filter(function (c) {
+  return c !== 'unmapped';
+});
 const CAT_LABEL = {
   unmapped: '미분류',
   solpass: '솔패스',
