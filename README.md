@@ -9,7 +9,7 @@
 ## 호스팅
 
 - jsDelivr: `https://cdn.jsdelivr.net/gh/<owner>/solpath-dashboard-front@<commit>/…`
-- 캐시 끄려면 커밋 SHA로 고정
+- `@main`은 **CDN 캐시**로 늦게 갱신되는 경우가 있어, 아임웹은 `IMWEB_*`에 **커밋 SHA**로 고정하는 편이 안전(푸시할 때 SHA만 바꾸기)
 
 ## 로컬
 
