@@ -24,7 +24,7 @@
   - `Access-Control-Allow-Origin`: `*` 또는 (고정이면) `https://cdn.jsdelivr.net` + 필요 시 `https://eunsang9597.github.io` 등
   - `Access-Control-Allow-Methods`: `GET, POST, OPTIONS`
   - `Access-Control-Allow-Headers`: `Content-Type` (필요한 헤더만)
-- **`Content-Type: application/json` 으로 POST** 하면 브라우저가 **OPTIONS** 프리플라이트**를** 보낼 수 있어, **GAS 쪽에서 `OPTIONS`에 204 + 위 헤더**를 내려주는지(또는 런타임이 `doOptions`를 노출하는지) **배포 후 Network 탭에서 확인**하는 것이 안전하다.  
+- **`Content-Type: application/json` 으로 POST** 하면 브라우저가 **OPTIONS** 프리플라이트**를** 보낼 수 있어, GAS/프론트에서 불리할 수 있다. 본 대시보드 `app.js`는 **프리플라이트를 피하기 위해** `Content-Type: text/plain` + `action=…` 본문으로 `POST`한다 (`HttpOpenSync`에서 동일 파싱).  
 - 프리플라이트가 **막힌 환경**이면, **1차**로 `application/x-www-form-urlencoded` 단순 POST(또는 `text/plain` 본문)로 피하는 방안을 백엔드와 약속할 수 있다.
 - **민감 작업(동기화 트리거)** 은 `fetch` + 공개 URL만으로 두지 말고, **GAS `ScriptProperties`에 둔 토큰**을 query/body로 넣어 검증(공개 HTML에는 토큰 **넣지 말 것**—위젯은 운영자 전용 가정이어도 소스엔 남는다. 운자만 접근 + 서버에만 비밀).
 

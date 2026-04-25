@@ -203,9 +203,6 @@ async function postSyncOpenFull() {
   if (!url || !btnSync || !confirmOk()) {
     return;
   }
-  const body = new URLSearchParams();
-  body.set('action', syncAction);
-
   syncBusy = true;
   refreshSyncButtonState();
   hideSheetsButton();
@@ -215,10 +212,15 @@ async function postSyncOpenFull() {
   setChip('처리', 'soft');
 
   try {
+    // GAS+브라우저: `application/x-www-form-urlencoded; charset=…` + 수동 헤더 조합이
+    // OPTIONS 프리플라이트를 촉발할 수 있어, CORS simple POST(프리플라이트 없음)는 `text/plain` 본문으로 통일
     const res = await fetch(url, {
       method: 'POST',
-      body: body,
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+      body: 'action=' + encodeURIComponent(syncAction),
+      headers: { 'Content-Type': 'text/plain' },
+      mode: 'cors',
+      credentials: 'omit',
+      cache: 'no-store'
     });
     const text = await res.text();
     let j;
