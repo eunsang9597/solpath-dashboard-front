@@ -17,6 +17,22 @@ const CAT_LABEL = {
   jasoseo: '자소서'
 };
 const LIFE_LABEL = { active: '진행', archived: '만료', test: '테스트', legacy: '(구)상품' };
+/** @type {Record<string, true>} */
+const _PM_LIFE_SET = (function () {
+  const o = Object.create(null);
+  Object.keys(LIFE_LABEL).forEach(function (k) {
+    o[k] = true;
+  });
+  return o;
+})();
+/** @type {Record<string, true>} */
+const _PM_CAT_SET = (function () {
+  const o = Object.create(null);
+  for (let i = 0; i < CAT_ORDER.length; i++) {
+    o[CAT_ORDER[i]] = true;
+  }
+  return o;
+})();
 
 const NAME_MAX = 20;
 
@@ -509,19 +525,49 @@ export function initProductMapping(mount) {
     if (!emsg) {
       return '요청이 실패했습니다.';
     }
+    if (emsg.error && typeof emsg.error === 'object' && emsg.error.code) {
+      const c = String(emsg.error.code);
+      if (c === 'PM_BAD_LIFECYCLE') {
+        return emsg.error.message != null && String(emsg.error.message).length
+          ? String(emsg.error.message)
+          : '상태(진행·만료·테스트·(구)상품)를 서버에 저장할 수 없습니다. (구)상품이 막히면 GAS(구글 앱스) 최신 배포를 담당자에게 요청하세요.';
+      }
+      if (c === 'PM_BAD_INTERNAL') {
+        return emsg.error.message != null && String(emsg.error.message).length
+          ? String(emsg.error.message)
+          : '내부 대분류를 서버에 저장할 수 없습니다. GAS를 최신으로 배포했는지 담당자에게 확인하세요.';
+      }
+    }
     if (typeof emsg.error === 'string' && emsg.error.length) {
-      return (emsg.message != null && String(emsg.message)) || emsg.error;
+      return errMsgMapLegacyString_((emsg.message != null && String(emsg.message)) || emsg.error);
     }
     if (emsg.error && emsg.error.message) {
-      return String(emsg.error.message);
+      return errMsgMapLegacyString_(String(emsg.error.message));
     }
     if (emsg.error && emsg.error.code) {
-      return String(emsg.error.code);
+      return errMsgMapLegacyString_(String(emsg.error.code));
     }
     if (emsg.message) {
-      return String(emsg.message);
+      return errMsgMapLegacyString_(String(emsg.message));
     }
     return '요청이 실패했습니다.';
+  }
+
+  /**
+   * @param {string} t
+   * @return {string}
+   */
+  function errMsgMapLegacyString_(t) {
+    if (!t) {
+      return t;
+    }
+    if (t.indexOf('lifecycle') >= 0 && t.indexOf('허용') >= 0) {
+      return '상태(진행·만료·테스트·(구)상품)를 서버에 저장할 수 없습니다. (구)상품이 막히면 GAS(구글 앱스)를 최신으로 다시 배포했는지 담당자에게 확인하세요.';
+    }
+    if (t.indexOf('internal_category') >= 0 && t.indexOf('허용') >= 0) {
+      return '내부 대분류를 서버에 저장할 수 없습니다. GAS(구글 앱스)를 최신으로 다시 배포했는지 담당자에게 확인하세요.';
+    }
+    return t;
   }
 
   async function loadState() {
@@ -725,11 +771,19 @@ export function initProductMapping(mount) {
       if (rowSig(r) !== baselineSig.get(pmRowKey_(r.prod_no))) {
         const pn = r.prod_no;
         const pnum = typeof pn === 'number' && !isNaN(pn) ? pn : parseInt(String(pn), 10);
+        let ic0 = String(r.internal_category != null ? r.internal_category : 'unmapped').trim() || 'unmapped';
+        if (!_PM_CAT_SET[ic0]) {
+          ic0 = 'unmapped';
+        }
+        let lf0 = String(r.lifecycle != null ? r.lifecycle : 'active').trim() || 'active';
+        if (!_PM_LIFE_SET[lf0]) {
+          lf0 = 'active';
+        }
         dirty.push({
           prod_no: isNaN(pnum) ? pn : pnum,
           product_name: r.product_name,
-          internal_category: r.internal_category,
-          lifecycle: r.lifecycle,
+          internal_category: ic0,
+          lifecycle: lf0,
           notes: r.notes != null ? String(r.notes) : ''
         });
       }
