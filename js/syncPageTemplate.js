@@ -121,7 +121,18 @@ export const SYNC_PAGE_SHELL_HTML = `<div class="app-shell app-shell--v9">
                     >운영 DB(분류) 열기</a
                   >
                 </div>
-                <button type="button" class="btn btn--secondary" id="sp-pm-apply" disabled>수정하기</button>
+                <div class="sp-pm-hero__ctas" id="sp-pm-heroCtas">
+                  <button type="button" class="btn btn--primary sp-pm-apply" id="sp-pm-apply" disabled>수정하기</button>
+                  <button
+                    type="button"
+                    class="btn btn--danger sp-pm-reset"
+                    id="sp-pm-reset"
+                    hidden
+                    title="원천 products 기준으로 분류 시트를 통째로 다시 씁니다. 편집 내용이 사라집니다."
+                    aria-label="데이터 초기화 — 운영 분류를 원천 기준으로 되돌립니다"
+                  >데이터 초기화</button>
+                </div>
+                <p class="sp-pm-reset-note" id="sp-pm-resetNote" hidden>위 작업은 <strong>되돌릴 수 없습니다</strong>. 팀에 공유한 뒤 누르세요.</p>
               </div>
             </div>
             <div class="sp-confirm-block sp-pm-confirm" id="sp-pm-confirm">

@@ -158,7 +158,9 @@ export function initProductMapping(mount) {
     instruct: /** @type {HTMLElement | null} */ (mount.querySelector('#sp-pm-instruct')),
     external: /** @type {HTMLElement | null} */ (mount.querySelector('#sp-pm-external')),
     linkMaster: /** @type {HTMLAnchorElement | null} */ (mount.querySelector('#sp-pm-linkMaster')),
-    linkOps: /** @type {HTMLAnchorElement | null} */ (mount.querySelector('#sp-pm-linkOps'))
+    linkOps: /** @type {HTMLAnchorElement | null} */ (mount.querySelector('#sp-pm-linkOps')),
+    btnReset: /** @type {HTMLButtonElement | null} */ (mount.querySelector('#sp-pm-reset')),
+    resetNote: /** @type {HTMLElement | null} */ (mount.querySelector('#sp-pm-resetNote'))
   };
   if (!el.init || !el.sections) {
     return;
@@ -433,6 +435,20 @@ export function initProductMapping(mount) {
         el.instruct.removeAttribute('hidden');
       }
     }
+    if (el.btnReset) {
+      if (ready) {
+        el.btnReset.removeAttribute('hidden');
+      } else {
+        el.btnReset.setAttribute('hidden', '');
+      }
+    }
+    if (el.resetNote) {
+      if (ready) {
+        el.resetNote.removeAttribute('hidden');
+      } else {
+        el.resetNote.setAttribute('hidden', '');
+      }
+    }
   }
 
   function errMsg(emsg) {
@@ -668,6 +684,51 @@ export function initProductMapping(mount) {
     }
   }
 
+  async function onReset() {
+    if (!GAS_MODE.canSync || !ready) {
+      return;
+    }
+    const ok = window.confirm(
+      '운영 분류 시트를 비우고, 원천 DB의 products만 보고 다시 채웁니다.\n\n' +
+        '지금까지 바꾼 분류·메모는 복구할 수 없습니다. 정말 진행할까요?'
+    );
+    if (!ok) {
+      return;
+    }
+    if (el.btnReset) {
+      el.btnReset.disabled = true;
+    }
+    if (el.listLoading) {
+      el.listLoading.removeAttribute('hidden');
+    }
+    setHint('', false);
+    try {
+      const r = await gasJsonpWithParams(url, 'productMappingReset', null, 120000);
+      if (!r || !r.ok) {
+        setHint(errMsg(r), true);
+        syncFooterAndInstruct();
+        return;
+      }
+      const n = r.data && r.data.seededRowCount != null ? Number(r.data.seededRowCount) : 0;
+      await loadList();
+      setHint(
+        '초기화했습니다. 원천 기준 ' + n + '건 · 기본값 미분류·진행으로 맞춤.',
+        true
+      );
+      syncFooterAndInstruct();
+    } catch (_e) {
+      setHint('초기화 요청에 실패했습니다.', true);
+      syncFooterAndInstruct();
+    } finally {
+      if (el.btnReset) {
+        el.btnReset.disabled = false;
+      }
+      if (el.listLoading) {
+        el.listLoading.setAttribute('hidden', '');
+      }
+    }
+  }
+
   if (el.btnInit) {
     el.btnInit.addEventListener('click', function () {
       onInit();
@@ -675,6 +736,11 @@ export function initProductMapping(mount) {
   }
   if (el.apply) {
     el.apply.addEventListener('click', onApply);
+  }
+  if (el.btnReset) {
+    el.btnReset.addEventListener('click', function () {
+      onReset();
+    });
   }
   if (el.search) {
     el.search.addEventListener('input', function () {
