@@ -32,7 +32,7 @@ body {
 }
 
 code {
-  font-size: 0.88em;
+  font-size: 0.9em;
   background: #eef1f5;
   padding: 0.1em 0.35em;
   border-radius: 4px;
@@ -88,7 +88,7 @@ code {
 }
 
 .brand-kicker {
-  font-size: 0.7rem;
+  font-size: 0.74rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--muted);
@@ -101,7 +101,7 @@ code {
 }
 
 .app-header h1 {
-  font-size: clamp(1.35rem, 3.5vw, 1.6rem);
+  font-size: clamp(1.42rem, 3.5vw, 1.68rem);
   font-weight: 700;
   margin: 0;
   letter-spacing: -0.02em;
@@ -111,7 +111,7 @@ code {
 .header-desc {
   margin: 0;
   color: #3d4651;
-  font-size: 0.94rem;
+  font-size: 0.99rem;
   line-height: 1.6;
   max-width: 38em;
   display: flex;
@@ -159,7 +159,7 @@ code {
 
 .sp-overlay-text {
   margin: 0.75rem 0 0;
-  font-size: 0.88rem;
+  font-size: 0.92rem;
   color: #3d4a5c;
   font-weight: 500;
 }
@@ -202,7 +202,7 @@ code {
 }
 
 .sp-feedback__main {
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   line-height: 1.45;
   margin: 0 0 0.35rem;
   color: #222830;
@@ -215,7 +215,7 @@ code {
 }
 
 .sp-feedback__sub {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   line-height: 1.45;
   margin: 0;
   color: var(--muted);
@@ -284,14 +284,14 @@ code {
 }
 
 .panel h2 {
-  font-size: 1.1rem;
+  font-size: 1.16rem;
   font-weight: 700;
   margin: 0;
   letter-spacing: -0.02em;
 }
 
 .panel__sub {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--muted);
@@ -302,7 +302,7 @@ code {
 .chip {
   display: inline-flex;
   align-items: center;
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   font-weight: 600;
   padding: 0.35em 0.7em;
   border-radius: 999px;
@@ -326,7 +326,7 @@ code {
 .lede {
   margin: 0 0 0.9rem;
   line-height: 1.6;
-  font-size: 0.95rem;
+  font-size: 1rem;
   color: #2c333a;
 }
 
@@ -349,7 +349,7 @@ code {
 
 .sp-confirm-instruct {
   margin: 0 0 0.9rem;
-  font-size: 0.92rem;
+  font-size: 0.97rem;
   line-height: 1.55;
   color: #222830;
   font-weight: 500;
@@ -363,7 +363,7 @@ code {
   margin: 0 0 1.15rem;
   padding-left: 1.1rem;
   color: #3d4651;
-  font-size: 0.88rem;
+  font-size: 0.92rem;
   line-height: 1.55;
 }
 
@@ -383,7 +383,7 @@ code {
 }
 
 .sp-confirm-label {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: #4a5560;
   font-weight: 600;
   margin: 0 0 0.4rem;
@@ -393,17 +393,20 @@ code {
 
 .sp-confirm-row {
   display: flex;
-  flex-wrap: wrap;
-  align-items: stretch;
-  gap: 0.65rem;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  gap: 0.7rem;
   width: 100%;
 }
 
 input.sp-confirm {
   font-family: inherit;
-  font-size: 0.95rem;
-  flex: 1 1 12rem;
+  font-size: 1rem;
+  flex: 0 0 auto;
+  width: min(12em, 100%);
   min-width: 0;
+  box-sizing: border-box;
   padding: 0.6rem 0.8rem;
   border: 1px solid #c9d2e0;
   border-radius: 10px;
@@ -426,7 +429,7 @@ input.sp-confirm:disabled {
 
 .btn {
   font-family: inherit;
-  font-size: 0.95rem;
+  font-size: 1rem;
   font-weight: 600;
   border: none;
   cursor: pointer;
@@ -443,9 +446,11 @@ input.sp-confirm:disabled {
 
 .sp-confirm-row .btn--primary {
   flex: 0 0 auto;
+  align-self: flex-start;
+  width: auto;
   white-space: nowrap;
-  padding-left: 1.15rem;
-  padding-right: 1.15rem;
+  padding-left: 1.2rem;
+  padding-right: 1.2rem;
 }
 
 .btn--primary {
@@ -464,7 +469,7 @@ input.sp-confirm:disabled {
 }
 
 .actions-note {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: #5a6572;
   margin: 0.75rem 0 0;
   max-width: 36em;
@@ -472,7 +477,7 @@ input.sp-confirm:disabled {
 }
 
 .mono-line {
-  font-size: 0.92rem;
+  font-size: 0.97rem;
   line-height: 1.5;
   margin: 0;
   color: #222830;
@@ -480,7 +485,7 @@ input.sp-confirm:disabled {
 }
 
 .hint {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: var(--muted);
   margin: 0.4rem 0 0;
   line-height: 1.45;
@@ -493,7 +498,7 @@ input.sp-confirm:disabled {
 
 .app-footer p {
   margin: 0;
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   color: #8a94a0;
 }
 
@@ -507,7 +512,7 @@ input.sp-confirm:disabled {
 }
 
 .app-footer--compact p {
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   line-height: 1.5;
   color: #7d8894;
   margin: 0;
@@ -532,7 +537,7 @@ input.sp-confirm:disabled {
 
 .sp-intro-title {
   margin: 0 0 0.5rem;
-  font-size: 0.7rem;
+  font-size: 0.74rem;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -543,7 +548,7 @@ input.sp-confirm:disabled {
   margin: 0;
   padding: 0 0 0 1.2rem;
   color: #2a3038;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   line-height: 1.58;
   list-style: disc;
 }
@@ -578,7 +583,7 @@ input.sp-confirm:disabled {
 
 .sp-tabs__btn {
   font-family: inherit;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-weight: 600;
   color: #5d6773;
   background: transparent;
@@ -619,7 +624,7 @@ input.sp-confirm:disabled {
 }
 
 .sp-panel-eyebrow {
-  font-size: 0.95rem;
+  font-size: 1rem;
   font-weight: 700;
   margin: 0;
   letter-spacing: -0.02em;
@@ -643,7 +648,7 @@ input.sp-confirm:disabled {
 
 .sp-sub-placeholder {
   margin: 0;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   color: #6b7684;
   line-height: 1.45;
 }
@@ -654,12 +659,3 @@ input.sp-confirm:disabled {
   }
 }
 
-@media (max-width: 520px) {
-  .sp-confirm-row {
-    flex-direction: column;
-  }
-
-  .sp-confirm-row .btn--primary {
-    width: 100%;
-  }
-}
