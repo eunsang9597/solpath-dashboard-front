@@ -192,7 +192,7 @@ code {
   display: none !important;
 }
 
-/* 실행 후 한 줄·시트 링크 (따로 떨어진 '결과' 패널 대신) */
+/* 실행 후 한 줄·드라이브 링크 (따로 떨어진 '결과' 패널 대신) */
 .sp-feedback[hidden] {
   display: none !important;
 }
@@ -285,7 +285,7 @@ code {
   margin-bottom: 0.75rem;
 }
 
-/* 탭당 스프레드시트 1:1 — 동기화=집계(마스터), 상품분류=운영(분류), 매출·건수=집계·분석 */
+/* 탭당 드라이브 1:1 — 왼쪽부터: 일/월간 매출 및 인원 지표, 데이터 동기화, 상품 항목 분류 */
 .sp-sync-head__right,
 .sp-pm-head__right,
 .sp-an-head__right {

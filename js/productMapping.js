@@ -193,7 +193,7 @@ function rowSig(r) {
 }
 
 /**
- * 상품 항목 분류 탭 전용 — 운영(분류) 스프레드시트 URL만 반영. 집계(마스터) 링크는 넣지 않음.
+ * 상품 항목 분류 탭 전용 — 분류용 스프레드시트 URL만 반영. 동기화(원본) 링크는 넣지 않음.
  * @param {HTMLElement} mount
  * @param {Record<string, unknown>} d
  */
@@ -277,7 +277,7 @@ export function initProductMapping(mount) {
       if (!ready) {
         el.apply.title = '목록을 불러온 뒤 사용할 수 있습니다.';
       } else if (!dirty) {
-        el.apply.title = '대분류·상태를 바꾼 뒤 누르면 시트에 반영됩니다.';
+        el.apply.title = '대분류·상태를 바꾼 뒤 누르면 구글 쪽에 반영됩니다.';
       } else {
         el.apply.removeAttribute('title');
       }
@@ -798,15 +798,15 @@ export function initProductMapping(mount) {
       const nSeeded = dInit.seededRowCount != null ? Number(dInit.seededRowCount) : 0;
       if (nSeeded > 0) {
         setHint(
-          '집계(마스터) 쪽 상품 목록을 기준으로, 운영(분류) 시트에 상품 ' +
+          '동기화 쪽 상품 목록을 기준으로, 상품 분류용 드라이브에 상품 ' +
             nSeeded +
-            '건을 넣었습니다. 구글 시트에서도 확인하세요.',
+            '건을 넣었습니다. 구글 드라이브에서도 확인하세요.',
           true
         );
         syncFooterAndInstruct();
       }
     } catch (_e) {
-      setHint('스프레드시트를 만들지 못했습니다.', true);
+      setHint('구글 쪽 파일을 만들지 못했습니다.', true);
       syncFooterAndInstruct();
     } finally {
       if (el.btnInit) {
@@ -883,7 +883,7 @@ export function initProductMapping(mount) {
       return;
     }
     const ok = window.confirm(
-      '「상품 매핑(분류)」시트를 비우고, 집계(마스터) 파일의 상품 목록만 보고 다시 채웁니다.\n\n' +
+      '「상품 매핑(분류)」에 적어 둔 내용을 비우고, 데이터 동기화에 올라와 있는 상품 목록만 보고 다시 채웁니다.\n\n' +
         '지금까지 바꾼 분류·상태는 복구할 수 없습니다. 정말 진행할까요?'
     );
     if (!ok) {
@@ -906,7 +906,7 @@ export function initProductMapping(mount) {
       const n = r.data && r.data.seededRowCount != null ? Number(r.data.seededRowCount) : 0;
       await loadList();
       setHint(
-        '초기화했습니다. 집계(마스터) 기준 ' + n + '건 · 기본값은 미분류·진행으로 맞춤.',
+        '초기화했습니다. 동기화 목록 기준 ' + n + '건 · 기본값은 미분류·진행으로 맞춤.',
         true
       );
       syncFooterAndInstruct();

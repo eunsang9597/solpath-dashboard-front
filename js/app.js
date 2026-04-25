@@ -147,7 +147,7 @@ function wireTabs_() {
   tSync.addEventListener('click', activateSync);
   tPm.addEventListener('click', activatePm);
   tAn.addEventListener('click', activateAn);
-  setIntroTab_('sync');
+  setIntroTab_('an');
 }
 
 function setChip(text, kind) {
@@ -239,7 +239,7 @@ function refreshSyncButtonState() {
 }
 
 /**
- * 데이터 동기화 탭 상단 — 집계(마스터) 스프레드시트만. 실행 완료 후 피드백의 링크와 별개.
+ * 데이터 동기화 탭 상단 — 동기화 대상 스프레드시트만. 실행 완료 후 피드백의 링크와 별개.
  * @param {string|undefined} url
  */
 function setSyncAggregateHeadLink(url) {
@@ -258,7 +258,7 @@ function setSyncAggregateHeadLink(url) {
 }
 
 /**
- * 동기화 완료 메시지 블록 안 — 집계 시트 확인하기 (같은 마스터 URL)
+ * 동기화 완료 메시지 블록 — 드라이브에서 보기 (같은 URL)
  * @param {string|undefined} url
  */
 function showSheetsButton(url) {
@@ -353,7 +353,7 @@ async function postSyncOpenFull() {
   refreshSyncButtonState();
   hideSheetsButton();
   setLoading(true);
-  setStatus('연동 데이터를 읽어 집계 시트에 반영하는 중입니다. 완료까지 수 분이 걸릴 수 있습니다.');
+  setStatus('연동 데이터를 읽어 구글 드라이브(연동)에 반영하는 중입니다. 완료까지 수 분이 걸릴 수 있습니다.');
   setHint('');
   setChip('처리', 'soft');
 
@@ -364,7 +364,7 @@ async function postSyncOpenFull() {
       const err = j.error != null ? String(j.error) : 'ERROR';
       const msg = j.message != null ? String(j.message) : '';
       if (err === 'SYNC_FAILED') {
-        setStatus('처리가 완료되지 않았습니다. ' + (msg || '집계 시트에 남는 내용을 확인한 뒤 운영 절차에 따릅니다.'));
+        setStatus('처리가 완료되지 않았습니다. ' + (msg || '드라이브에 남는 내용을 확인한 뒤 운영 절차에 따릅니다.'));
       } else {
         setStatus('처리를 마치지 못했습니다. ' + (msg || '동일 증상이면 운영 절차에 따라 문의합니다.'));
       }
@@ -386,7 +386,7 @@ async function postSyncOpenFull() {
         (o && o.orderRows != null ? o.orderRows : '—') +
         ' · 품목 ' +
         (o && o.itemRows != null ? o.itemRows : '—') +
-        '. [집계 시트 확인하기]로 확인합니다.'
+        '. [드라이브에서 보기]로 확인합니다.'
     );
     const sheetUrl = d.spreadsheetUrl != null ? String(d.spreadsheetUrl).trim() : '';
     if (sheetUrl) {
@@ -395,7 +395,7 @@ async function postSyncOpenFull() {
       setHint('');
     } else {
       hideSheetsButton();
-      setHint('집계(마스터) 파일로 가는 링크를 받지 못했습니다. 내부 담당자에게 문의하세요.');
+      setHint('연동 쪽 구글 드라이브로 가는 주소를 받지 못했습니다. 내부 담당자에게 문의하세요.');
     }
   } catch (e) {
     setChip('오류', 'err');
@@ -433,7 +433,7 @@ function wireSync() {
   refreshSyncButtonState();
   if (actionNote) {
     actionNote.textContent =
-      '[실행]을 누를 때마다, 지금 시점의 솔루션 연동 데이터로 집계(마스터) 시트를 통째로 갱신합니다. 수 분 걸릴 수 있습니다.';
+      '[실행]을 누를 때마다, 지금 시점의 솔루션 연동 데이터로 이 탭이 쓰는 구글 드라이브 파일을 통째로 갱신합니다. 수 분 걸릴 수 있습니다.';
   }
   btnSync.addEventListener('click', function onSync() {
     postSyncOpenFull();

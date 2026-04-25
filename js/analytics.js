@@ -1,5 +1,5 @@
 /**
- * 집계·분석(매출·건수 목표) — GAS JSONP
+ * 일/월간 매출 및 인원 지표 — GAS JSONP
  */
 import { GAS_BASE_URL, GAS_MODE } from './config.js';
 
@@ -130,6 +130,9 @@ function errMsg_(r) {
   if (!r) {
     return '응답이 없습니다.';
   }
+  if (typeof r.error === 'string' && r.error.length) {
+    return r.error;
+  }
   var msg = '';
   if (r.error && typeof r.error === 'object' && r.error.message) {
     msg = String(r.error.message);
@@ -139,10 +142,42 @@ function errMsg_(r) {
   if (!msg) {
     return '';
   }
-  if (msg.indexOf('원천 DB') >= 0 || msg.indexOf('SHEETS_MASTER') >= 0 || msg.indexOf('Drive') >= 0 && msg.indexOf('부모') >= 0) {
-    return '집계용 구글 시트(원본)를 찾지 못했습니다. 마스터 파일이 열리는지 확인한 뒤 다시 시도합니다.';
+  if (msg.indexOf('원천 DB') >= 0 || msg.indexOf('SHEETS_MASTER') >= 0 || (msg.indexOf('Drive') >= 0 && msg.indexOf('부모') >= 0)) {
+    return '먼저 「데이터 동기화」에서 한 번 실행한 뒤, 다시 눌러 주세요.';
   }
   return msg;
+}
+
+/**
+ * @param {string} action
+ * @param {object|null} result
+ * @param {Error|unknown} [caught]
+ */
+function logSolpathApi_(action, result, caught) {
+  const payload = { action: action, ok: result && result.ok === true };
+  if (result && !result.ok) {
+    payload.error = result.error;
+    payload.message = result.message;
+    payload.body = result;
+  }
+  if (caught != null) {
+    const e = /** @type {Error} */ (caught);
+    payload.caught = e && e.message != null ? e.message : String(caught);
+  }
+  if (typeof console !== 'undefined' && console.error) {
+    console.error('[솔루션편입·API]', payload);
+  }
+}
+
+/**
+ * @param {object|null|undefined} r
+ */
+function formatHintWithErrorCode_(r) {
+  var m = errMsg_(r) || '요청이 완료되지 않았습니다.';
+  if (r && r.error && typeof r.error === 'object' && r.error.code) {
+    m += ' [코드: ' + String(r.error.code) + ']';
+  }
+  return m;
 }
 
 /**
@@ -576,7 +611,7 @@ export function initAnalytics(mount) {
       }
       yearFilterList();
       render();
-      setHint('목록에 반영했습니다. 시트에 쓰려면 「시트에 반영」을 누릅니다.', true);
+      setHint('목록에 넣었습니다. 「드라이브에 저장」을 누르면 올라갑니다.', true);
     });
   }
 
@@ -601,7 +636,8 @@ export function initAnalytics(mount) {
       try {
         const r = await gasJsonpWithParams(url, 'initAnalyticsSheets', null, 120000);
         if (!r || !r.ok) {
-          setHint(errMsg_(r) || '준비에 실패했습니다.', true);
+          logSolpathApi_('initAnalyticsSheets', r, null);
+          setHint(formatHintWithErrorCode_(r) || '데이터 생성에 실패했습니다.', true);
           return;
         }
         const d0 = (r && r.data) || {};
@@ -612,10 +648,16 @@ export function initAnalytics(mount) {
         ready = true;
         syncAnUi_();
         await loadTargets();
-        setHint('집계·분석 시트를 준비했습니다. 목표를 적은 뒤 「시트에 반영」으로 저장합니다.', true);
+        setHint('만들었습니다. 적은 뒤 「드라이브에 저장」으로 올립니다.', true);
       } catch (e) {
+        logSolpathApi_('initAnalyticsSheets', null, e);
         const m = e && e.message != null ? String(e.message) : '';
-        setHint(m === 'timeout' ? '응답이 지연되었습니다.' : '요청이 완료되지 않았습니다.', true);
+        setHint(
+          m === 'timeout'
+            ? '응답이 지연되었습니다. [네트워크/timeout]'
+            : '요청이 끝나지 않았습니다. [콘솔에 상세]',
+          true
+        );
       } finally {
         if (el.btnInit) {
           el.btnInit.disabled = false;
@@ -642,10 +684,10 @@ export function initAnalytics(mount) {
       try {
         const r = await analyticsTargetsApplyBatched_(url, out, 5000);
         if (!r || !r.ok) {
-          setHint(errMsg_(r) || '시트에 쓰지 못했습니다.', true);
+          setHint(errMsg_(r) || '저장하지 못했습니다.', true);
           return;
         }
-        setHint('시트에 반영했습니다.', true);
+        setHint('드라이브에 저장했습니다.', true);
         await loadTargets();
       } catch (e) {
         const m = e && e.message != null ? String(e.message) : '';
