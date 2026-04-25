@@ -1,7 +1,7 @@
 /**
  * id 접두 `sp-`
  */
-export const SYNC_PAGE_SHELL_HTML = `<div class="app-shell app-shell--v7">
+export const SYNC_PAGE_SHELL_HTML = `<div class="app-shell app-shell--v8">
       <header class="app-header">
         <div class="brand">
           <span class="brand-mark" aria-hidden="true"></span>
@@ -10,7 +10,7 @@ export const SYNC_PAGE_SHELL_HTML = `<div class="app-shell app-shell--v7">
           </div>
         </div>
         <div class="header-desc">
-          <p>쇼핑몰의 회원·상품·주문을 집계 시트에 반영한다. <strong>실행 1회마다 집계 시트 전체</strong>가 그 시점 쇼핑몰 기준으로 갱신된다. 보존이 필요한 칸은 실행 전에 복사한다. 완료까지 수 분이 걸릴 수 있다.</p>
+          <p><strong>솔루션 편입</strong>으로 연동된 회원·상품·주문을 집계 시트에 반영한다. <strong>실행 1회마다 집계 시트 전체</strong>가 그 시점 연동 기준으로 갱신된다. 보존이 필요한 칸은 실행 전에 복사한다. 완료까지 수 분이 걸릴 수 있다.</p>
         </div>
       </header>
 

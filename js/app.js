@@ -17,7 +17,7 @@ function ensureShell() {
   if (m.getAttribute('data-solpath-autofill') === '0') {
     return m;
   }
-  if (!m.querySelector('.app-shell--v7')) {
+  if (!m.querySelector('.app-shell--v8')) {
     m.innerHTML = SYNC_PAGE_SHELL_HTML;
   }
   return m;
@@ -171,7 +171,7 @@ async function postSyncOpenFull() {
   refreshSyncButtonState();
   hideSheetsButton();
   setLoading(true);
-  setStatus('쇼핑몰 데이터를 읽어 집계 시트에 반영하는 중입니다. 완료까지 수 분이 걸릴 수 있습니다.');
+  setStatus('연동 데이터를 읽어 집계 시트에 반영하는 중입니다. 완료까지 수 분이 걸릴 수 있습니다.');
   setHint('');
   setChip('처리', 'soft');
 
@@ -187,7 +187,7 @@ async function postSyncOpenFull() {
       j = JSON.parse(text);
     } catch (_e) {
       setChip('오류', 'err');
-      setStatus('서버 응답을 확인할 수 없습니다. 잠시 후 [실행]을 다시 누릅니다.');
+      setStatus('응답을 확인할 수 없습니다. 잠시 후 [실행]을 다시 누릅니다.');
       setHint('');
       return;
     }
@@ -196,9 +196,9 @@ async function postSyncOpenFull() {
       const err = j.error != null ? String(j.error) : 'ERROR';
       const msg = j.message != null ? String(j.message) : '';
       if (err === 'SYNC_FAILED') {
-        setStatus('처리가 완료되지 않았습니다. ' + (msg || '집계 시트에 남는 내용을 확인한 뒤 사내 절차에 따릅니다.'));
+        setStatus('처리가 완료되지 않았습니다. ' + (msg || '집계 시트에 남는 내용을 확인한 뒤 운영 절차에 따릅니다.'));
       } else {
-        setStatus('처리를 마치지 못했습니다. ' + (msg || '동일 증상이면 사내 절차에 따라 문의합니다.'));
+        setStatus('처리를 마치지 못했습니다. ' + (msg || '동일 증상이면 운영 절차에 따라 문의합니다.'));
       }
       setHint('');
       return;
@@ -226,7 +226,7 @@ async function postSyncOpenFull() {
       setHint('');
     } else {
       hideSheetsButton();
-      setHint('집계 시트 바로가기 링크를 받지 못했습니다. 사내에 공지된 절차에 따라 문의합니다.');
+      setHint('집계 시트 바로가기를 받지 못했습니다. 운영 절차에 따라 문의합니다.');
     }
   } catch (e) {
     setChip('오류', 'err');
@@ -257,14 +257,14 @@ function wireSync() {
     }
     if (actionNote) {
       actionNote.textContent =
-        '이 화면이 동작하려면 사이트에 넣는 스크립트 맨 앞부분에, 안내된 연결 주소가 들어가 있어야 합니다. 담당 설정을 확인합니다.';
+        '이 기능을 쓰려면 서버와의 연결이 먼저 잡혀 있어야 합니다. 운영에서 안내받은 절차를 확인합니다.';
     }
     return;
   }
   refreshSyncButtonState();
   if (actionNote) {
     actionNote.textContent =
-      '[실행] 1회마다 쇼핑몰 현재 데이터로 집계 시트를 덮어쓰며, 수 분이 걸릴 수 있습니다.';
+      '[실행] 1회마다 솔루션 연동 기준의 현재 데이터로 집계 시트를 덮어쓰며, 수 분이 걸릴 수 있습니다.';
   }
   btnSync.addEventListener('click', function onSync() {
     postSyncOpenFull();
@@ -274,13 +274,12 @@ function wireSync() {
 async function main() {
   if (!mount) {
     setChip('오류', 'err');
-    setStatus('이 페이지에서 화면을 띄울 영역이 없습니다. 사이트 편집에 붙인 위젯·코드가 안내된 대로인지 담당자에게 확인합니다.');
     return;
   }
   hideSheetsButton();
   if (GAS_MODE.useMock) {
     setChip('미연결', 'soft');
-    setStatus('연결 주소가 이 페이지에 설정되어 있지 않습니다. 사이트에 삽입한 스크립트 상단의 연결 주소를 확인합니다.');
+    setStatus('서버와 연결이 잡혀 있지 않습니다. 운영에서 안내받은 절차에 따라 환경을 확인합니다.');
     setHint('');
     wireSync();
     return;
@@ -293,5 +292,5 @@ async function main() {
 
 main().catch((e) => {
   setChip('오류', 'err');
-  setStatus('초기 로드에 실패했습니다. 페이지를 새로 고침한 뒤 다시 시도합니다.');
+  setStatus('화면을 불러오지 못했습니다. 페이지를 새로 고침한 뒤 다시 시도합니다.');
 });
