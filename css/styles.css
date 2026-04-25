@@ -653,25 +653,42 @@ input.sp-confirm:disabled {
   line-height: 1.45;
 }
 
-/* 상품 항목 분류 */
-.sp-pm-hero {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem 1rem;
-  margin-bottom: 0.75rem;
+/* 상품 항목 분류 — 데이터 동기화 탭과 동일: panel--hero + sp-confirm-block */
+#sp-pm-root.panel--hero {
+  margin-top: 0.4rem;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
+  border-color: #e0e7ef;
 }
 
-.sp-pm-hero__actions .btn[disabled] {
+#sp-pm-root .sp-pm-hero__actions {
+  flex-shrink: 0;
+}
+
+#sp-pm-root .sp-pm-hero__actions .btn[disabled] {
   opacity: 0.45;
   cursor: not-allowed;
 }
 
+#sp-pm-instruct[hidden] {
+  display: none !important;
+}
+
+#sp-pm-confirm {
+  width: 100%;
+  max-width: 100%;
+  margin-top: 0.2rem;
+  box-sizing: border-box;
+}
+
 .sp-pm__hint {
-  font-size: 0.88rem;
-  color: #2d6a2d;
-  margin: 0 0 0.75rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #1b5c3a;
+  margin: 0 0 0.9rem;
+  padding: 0.5rem 0.65rem;
+  border-radius: 8px;
+  background: rgba(34, 141, 84, 0.08);
+  border: 1px solid rgba(27, 92, 58, 0.2);
 }
 
 .sp-pm__hint[hidden] {
@@ -679,28 +696,23 @@ input.sp-confirm:disabled {
 }
 
 .sp-pm-init {
-  background: #fafbfd;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 1.1rem 1.15rem;
-  margin-bottom: 0.9rem;
+  margin: 0.15rem 0 0.25rem;
 }
 
-.sp-pm-init p {
-  margin: 0 0 0.9rem;
-  line-height: 1.5;
-  color: #3a4450;
-  font-size: 0.94rem;
+.sp-pm-init__row {
+  margin-top: 0.15rem;
 }
 
 .sp-pm-filters {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  gap: 0.75rem 1.25rem;
-  margin-bottom: 0.75rem;
+  align-items: flex-end;
+  gap: 0.75rem 1.5rem;
+  margin: 0.85rem 0 0.65rem;
   font-size: 0.9rem;
   color: var(--muted);
+  padding-top: 0.35rem;
+  border-top: 1px dashed rgba(11, 92, 173, 0.15);
 }
 
 .sp-pm-filters__s {
@@ -712,20 +724,17 @@ input.sp-confirm:disabled {
 }
 
 .sp-pm-filters__lbl {
-  font-size: 0.78rem;
+  font-size: 0.85rem;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: #7a838d;
+  color: #4a5560;
+  margin: 0;
 }
 
-.sp-pm__search {
-  width: 100%;
-  max-width: 20rem;
-  padding: 0.45rem 0.6rem;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  font: inherit;
+/* 동기화 탭 `input.sp-confirm`과 맞춤 + 검색은 조금 넓게 */
+#sp-pm-search.sp-confirm {
+  max-width: min(22rem, 100%);
+  width: min(22rem, 100%);
+  border-radius: 10px;
 }
 
 .sp-pm-filters__c {
@@ -808,7 +817,7 @@ input.sp-confirm:disabled {
 .sp-pm-cat__body {
   padding: 0 0.75rem 0.8rem 0.75rem;
   border-top: 1px solid #eef0f3;
-  background: #fbfcfe;
+  background: #fff;
 }
 
 .sp-pm-row {
@@ -863,6 +872,19 @@ input.sp-confirm:disabled {
   margin: 0.35rem 0.2rem;
   font-size: 0.86rem;
   color: #8a94a0;
+}
+
+.sp-pm-sections {
+  margin-top: 0.35rem;
+}
+
+#sp-pm-root .sp-pm__footer-note {
+  margin: 0.9rem 0 0;
+  max-width: 40em;
+}
+
+#sp-pm-root .sp-pm__footer-note[hidden] {
+  display: none !important;
 }
 
 .visually-hidden {

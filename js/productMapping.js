@@ -149,7 +149,9 @@ export function initProductMapping(mount) {
     listLoading: /** @type {HTMLElement | null} */ (mount.querySelector('#sp-pm-listLoading')),
     hint: /** @type {HTMLElement | null} */ (mount.querySelector('#sp-pm-hint')),
     search: /** @type {HTMLInputElement | null} */ (mount.querySelector('#sp-pm-search')),
-    onlyUnmapped: /** @type {HTMLInputElement | null} */ (mount.querySelector('#sp-pm-onlyUnmapped'))
+    onlyUnmapped: /** @type {HTMLInputElement | null} */ (mount.querySelector('#sp-pm-onlyUnmapped')),
+    footerNote: /** @type {HTMLElement | null} */ (mount.querySelector('#sp-pm-footerNote')),
+    instruct: /** @type {HTMLElement | null} */ (mount.querySelector('#sp-pm-instruct'))
   };
   if (!el.init || !el.sections) {
     return;
@@ -364,6 +366,23 @@ export function initProductMapping(mount) {
   /**
    * @param {string} emsg
    */
+  function syncFooterAndInstruct() {
+    if (el.footerNote) {
+      if (ready && el.filters && !el.filters.hasAttribute('hidden')) {
+        el.footerNote.removeAttribute('hidden');
+      } else {
+        el.footerNote.setAttribute('hidden', '');
+      }
+    }
+    if (el.instruct) {
+      if (ready) {
+        el.instruct.setAttribute('hidden', '');
+      } else {
+        el.instruct.removeAttribute('hidden');
+      }
+    }
+  }
+
   function errMsg(emsg) {
     if (!emsg) {
       return '요청이 실패했습니다.';
@@ -424,6 +443,7 @@ export function initProductMapping(mount) {
       if (ready) {
         await loadList();
       }
+      syncFooterAndInstruct();
     } catch (_e) {
       setHint('상태를 불러오지 못했습니다.', true);
     } finally {
@@ -458,14 +478,17 @@ export function initProductMapping(mount) {
           }
         }
         setHint(errMsg(res), true);
+        syncFooterAndInstruct();
         return;
       }
       const rows = (res.data && res.data.rows) || [];
       localRows = JSON.parse(JSON.stringify(rows));
       snapshotBaseline();
       render();
+      syncFooterAndInstruct();
     } catch (_e) {
       setHint('목록을 불러오지 못했습니다.', true);
+      syncFooterAndInstruct();
     } finally {
       if (el.listLoading) {
         el.listLoading.setAttribute('hidden', '');
@@ -488,6 +511,7 @@ export function initProductMapping(mount) {
       const r = await gasJsonpWithParams(url, 'initOperationsSheets', null, 120000);
       if (!r || !r.ok) {
         setHint(errMsg(r), true);
+        syncFooterAndInstruct();
         return;
       }
       ready = true;
@@ -503,6 +527,7 @@ export function initProductMapping(mount) {
       await loadList();
     } catch (_e) {
       setHint('스프레드시트를 만들지 못했습니다.', true);
+      syncFooterAndInstruct();
     } finally {
       if (el.btnInit) {
         el.btnInit.disabled = false;

@@ -97,28 +97,33 @@ export const SYNC_PAGE_SHELL_HTML = `<div class="app-shell app-shell--v9">
           aria-labelledby="sp-tab-pm"
           hidden
         >
-          <div class="sp-pm" id="sp-pm-root">
-            <div class="sp-pm-hero" id="sp-pm-hero">
+          <div class="panel panel--hero" id="sp-pm-root">
+            <div class="panel__head">
               <h2 class="sp-panel-eyebrow" id="sp-pm-eyebrow">상품 항목 분류</h2>
               <div class="sp-pm-hero__actions" id="sp-pm-heroActions">
-                <button type="button" class="btn btn--primary" id="sp-pm-apply" disabled>수정하기</button>
+                <button type="button" class="btn btn--secondary" id="sp-pm-apply" disabled>수정하기</button>
               </div>
             </div>
-            <p class="sp-pm__hint" id="sp-pm-hint" hidden></p>
-            <div class="sp-pm-init" id="sp-pm-init" hidden>
-              <p>원천 DB의 상품과 연결해 내부 대분류(솔패스·솔루틴·챌린지·교재)를 씁니다. 먼저 운영용 스프레드시트를 만듭니다.</p>
-              <button type="button" class="btn btn--primary" id="sp-pm-btnInit">상품 불러오기</button>
+            <div class="sp-confirm-block sp-pm-confirm" id="sp-pm-confirm">
+              <p class="sp-confirm-instruct" id="sp-pm-instruct">원천 DB의 상품과 연결해 <strong>내부 대분류</strong>(솔패스·솔루틴·챌린지·교재)를 씁니다. 처음이면 <strong>상품 불러오기</strong>로 운영용 시트를 만듭니다.</p>
+              <p class="sp-pm__hint" id="sp-pm-hint" hidden></p>
+              <div class="sp-pm-init" id="sp-pm-init" hidden>
+                <div class="sp-confirm-row sp-pm-init__row">
+                  <button type="button" class="btn btn--primary" id="sp-pm-btnInit">상품 불러오기</button>
+                </div>
+              </div>
+              <div class="sp-pm-filters" id="sp-pm-filters" hidden>
+                <label class="sp-pm-filters__s"><span class="sp-pm-filters__lbl">검색</span>
+                  <input type="search" class="sp-confirm sp-pm__search" id="sp-pm-search" placeholder="상품명, 번호" autocomplete="off" />
+                </label>
+                <label class="sp-pm-filters__c"><input type="checkbox" id="sp-pm-onlyUnmapped" />
+                  <span>미분류만</span>
+                </label>
+              </div>
+              <div class="sp-pm__loading" id="sp-pm-listLoading" hidden>불러오는 중</div>
+              <div class="sp-pm-sections" id="sp-pm-sections" hidden></div>
+              <p class="actions-note sp-pm__footer-note" id="sp-pm-footerNote" hidden>편집한 뒤 <strong>수정하기</strong>로 시트에 반영합니다. 드롭다운을 바꾸면 <strong>수정하기</strong>가 켜집니다.</p>
             </div>
-            <div class="sp-pm-filters" id="sp-pm-filters" hidden>
-              <label class="sp-pm-filters__s"><span class="sp-pm-filters__lbl">검색</span>
-                <input type="search" class="sp-pm__search" id="sp-pm-search" placeholder="상품명·번호" autocomplete="off" />
-              </label>
-              <label class="sp-pm-filters__c"><input type="checkbox" id="sp-pm-onlyUnmapped" />
-                <span>미분류만</span>
-              </label>
-            </div>
-            <div class="sp-pm__loading" id="sp-pm-listLoading" hidden>불러오는 중</div>
-            <div class="sp-pm-sections" id="sp-pm-sections" hidden></div>
           </div>
         </section>
         </div>
