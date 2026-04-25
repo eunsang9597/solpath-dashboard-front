@@ -317,8 +317,13 @@ export function initProductMapping(mount) {
         });
         const selCat = buildSelectCat(dataIdx, row2.internal_category);
         const selLife = buildSelectLife(dataIdx, row2.lifecycle);
+        const unmappedTest =
+          cat === 'unmapped' && String(row2.lifecycle != null ? row2.lifecycle : '') === 'test';
+        const rowMod = unmappedTest ? ' sp-pm-row--unmapped-test' : '';
         parts.push(
-          '<div class="sp-pm-row" data-prod-no="' +
+          '<div class="sp-pm-row' +
+            rowMod +
+            '" data-prod-no="' +
             String(row2.prod_no) +
             '"><span class="sp-pm-row__no">' +
             escAttr(String(row2.prod_no)) +

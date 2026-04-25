@@ -1125,6 +1125,13 @@ input.sp-confirm:disabled {
   white-space: nowrap;
 }
 
+/* 미분류 + 상태「테스트」— 분류 넣기 전 임시 표시(행은 그대로, 드롭다운으로 수정 가능) */
+#sp-pm-root .sp-pm-row--unmapped-test .sp-pm-row__no,
+#sp-pm-root .sp-pm-row--unmapped-test .sp-pm-row__name {
+  color: #b42318;
+  font-weight: 600;
+}
+
 .sp-pm-sel__wrap {
   display: flex;
   align-items: center;
