@@ -1,3 +1,7 @@
+<!--
+  순서: ① __SOLPATH__(module보다 앞) ② CSS ③ 빈 #solpath-root ④ app.js
+  gasBaseUrl: GAS Web App …/exec. jsDelivr는 @커밋 SHA로 고정( @main 캐시 지연 있음).
+-->
 <script>window.__SOLPATH__ = { gasBaseUrl: "https://script.google.com/macros/s/AKfycbwCGKcZFAsh9cW7sHG5dKPvFVg0QRjy5rr84PbJugk5raXjXX9PpYVSzjbSzbzEZE6P/exec" };</script>
 <link
   rel="stylesheet"
@@ -5,10 +9,10 @@
 />
 <link
   rel="stylesheet"
-  href="https://cdn.jsdelivr.net/gh/eunsang9597/solpath-dashboard-front@883692a/css/styles.css"
+  href="https://cdn.jsdelivr.net/gh/eunsang9597/solpath-dashboard-front@__COMMIT_SHA__/css/styles.css"
 />
-<div id="solpath-root" class="solpath-mount" data-solpath-autofill="1" style="max-width:960px;margin:0 auto"></div>
+<div id="solpath-root" class="solpath-mount" data-solpath-autofill="1" style="max-width:100%;margin:0 auto"></div>
 <script
   type="module"
-  src="https://cdn.jsdelivr.net/gh/eunsang9597/solpath-dashboard-front@883692a/js/app.js"
+  src="https://cdn.jsdelivr.net/gh/eunsang9597/solpath-dashboard-front@__COMMIT_SHA__/js/app.js"
 ></script>

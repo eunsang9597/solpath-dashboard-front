@@ -1,6 +1,6 @@
 :root {
   /* 위젯: #solpath-root style 로 덮기 예) --solpath-shell-max: 100% 또는 min(100%, 56rem) */
-  --solpath-shell-max: 42rem;
+  --solpath-shell-max: min(100%, 44rem);
   --ink: #12161c;
   --muted: #5c6570;
   --line: #e2e6ec;
@@ -9,8 +9,10 @@
   --accent: #0b5cad;
   --accent-hover: #094a8f;
   --accent-soft: rgba(11, 92, 173, 0.08);
+  --accent-line: linear-gradient(90deg, #0b5cad, #0c8cbd 55%, #2ab3c9);
   --radius: 16px;
   --shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 8px 32px rgba(16, 24, 40, 0.06);
+  --shadow-hero: 0 1px 2px rgba(16, 24, 40, 0.05), 0 10px 40px rgba(11, 92, 173, 0.07);
   font-synthesis: weight style;
 }
 
@@ -24,6 +26,7 @@ body {
   min-height: 100%;
   font-family: "Pretendard", system-ui, "Apple SD Gothic Neo", sans-serif;
   background: var(--bg);
+  background-image: linear-gradient(165deg, #e4e9f0 0%, #eef1f5 24%, #f0f2f5 60%, #f4f6f8 100%);
   color: var(--ink);
   -webkit-font-smoothing: antialiased;
 }
@@ -45,7 +48,7 @@ code {
 .app-shell {
   max-width: var(--solpath-shell-max);
   margin: 0 auto;
-  padding: clamp(1.25rem, 3vw, 2rem) clamp(1rem, 3vw, 1.5rem) 2.5rem;
+  padding: clamp(1.25rem, 3vw, 2rem) clamp(1rem, 3vw, 1.5rem) 2.25rem;
 }
 
 .app-header {
@@ -87,10 +90,17 @@ code {
 
 .header-desc {
   margin: 0;
-  color: var(--muted);
-  font-size: 0.95rem;
-  line-height: 1.55;
-  max-width: 36em;
+  color: #3d4651;
+  font-size: 0.94rem;
+  line-height: 1.6;
+  max-width: 38em;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.header-desc p {
+  margin: 0;
 }
 
 .app-main {
@@ -185,7 +195,26 @@ code {
 }
 
 .panel--hero {
-  padding: 1.4rem 1.45rem 1.5rem;
+  padding: 1.45rem 1.45rem 1.5rem;
+  position: relative;
+  box-shadow: var(--shadow-hero);
+  border-color: #dde3ec;
+  overflow: hidden;
+}
+
+.panel--hero::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--accent-line);
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+
+.panel--result {
+  border-color: #e4e8ef;
 }
 
 .panel__head {
@@ -249,6 +278,38 @@ code {
   font-weight: 600;
 }
 
+/* 확인 블록 (실행 잠금) */
+.sp-confirm-block {
+  margin-top: 0.2rem;
+  padding: 1.05rem 1.1rem 1.1rem;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #f5f8fc 0%, #f0f4fa 100%);
+  border: 1px solid rgba(11, 92, 173, 0.18);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  width: 100%;
+  max-width: 100%;
+}
+
+.sp-block-title {
+  margin: 0 0 0.35rem;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: #3d5a7a;
+  font-weight: 700;
+}
+
+.sp-confirm-hint {
+  margin: 0 0 0.85rem;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: #3d4a5a;
+}
+
+.sp-confirm-hint code {
+  font-size: 0.9em;
+}
+
 .bullets {
   margin: 0 0 1.15rem;
   padding-left: 1.1rem;
@@ -273,24 +334,33 @@ code {
 }
 
 .sp-confirm-label {
-  font-size: 0.82rem;
-  color: var(--muted);
-  font-weight: 500;
-  margin: 0;
+  font-size: 0.8rem;
+  color: #4a5560;
+  font-weight: 600;
+  margin: 0 0 0.4rem;
   width: 100%;
-  max-width: 22rem;
+  display: block;
+}
+
+.sp-confirm-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 0.65rem;
+  width: 100%;
 }
 
 input.sp-confirm {
   font-family: inherit;
   font-size: 0.95rem;
-  width: 100%;
-  max-width: 22rem;
-  padding: 0.55rem 0.7rem;
-  border: 1px solid var(--line);
+  flex: 1 1 12rem;
+  min-width: 0;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid #c9d2e0;
   border-radius: 10px;
-  background: #fafbfc;
+  background: #fff;
   color: var(--ink);
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
 }
 
 input.sp-confirm:focus {
@@ -322,6 +392,13 @@ input.sp-confirm:disabled {
   box-shadow: none;
 }
 
+.sp-confirm-row .btn--primary {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  padding-left: 1.15rem;
+  padding-right: 1.15rem;
+}
+
 .btn--primary {
   background: var(--accent);
   color: #fff;
@@ -339,10 +416,10 @@ input.sp-confirm:disabled {
 
 .actions-note {
   font-size: 0.8rem;
-  color: var(--muted);
-  margin: 0;
-  max-width: 32em;
-  line-height: 1.45;
+  color: #5a6572;
+  margin: 0.75rem 0 0;
+  max-width: 36em;
+  line-height: 1.5;
 }
 
 .mono-line {
@@ -371,6 +448,22 @@ input.sp-confirm:disabled {
   color: #8a94a0;
 }
 
+.app-footer--compact {
+  margin-top: 1.5rem;
+  text-align: left;
+  max-width: 40rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 0.15rem 0.5rem;
+}
+
+.app-footer--compact p {
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: #7d8894;
+  margin: 0;
+}
+
 .app-footer code {
   font-size: 0.8em;
 }
@@ -378,5 +471,15 @@ input.sp-confirm:disabled {
 @media (min-width: 480px) {
   .header-desc strong {
     font-weight: 600;
+  }
+}
+
+@media (max-width: 520px) {
+  .sp-confirm-row {
+    flex-direction: column;
+  }
+
+  .sp-confirm-row .btn--primary {
+    width: 100%;
   }
 }

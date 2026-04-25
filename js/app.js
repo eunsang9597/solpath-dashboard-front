@@ -18,7 +18,7 @@ function ensureShell() {
     return m;
   }
   // 아임웹에 예전에 붙인 정적 HTML(구 .app-shell)이 있으면 그대로 두지 않고 v2로 갈아탐
-  if (!m.querySelector('.app-shell--v2')) {
+  if (!m.querySelector('.app-shell--v3')) {
     m.innerHTML = SYNC_PAGE_SHELL_HTML;
   }
   return m;
@@ -151,7 +151,7 @@ async function postSyncOpenFull() {
   refreshSyncButtonState();
   hideSheetsButton();
   setLoading(true);
-  setStatus('요청 전송. 수 분 걸릴 수 있음.');
+  setStatus('요청을 보냄. 완료까지 수 분이 걸릴 수 있다.');
   setHint('');
   setChip('처리', 'soft');
 
@@ -167,7 +167,7 @@ async function postSyncOpenFull() {
       j = JSON.parse(text);
     } catch (_e) {
       setChip('오류', 'err');
-      setStatus('JSON 아님 (HTTP ' + res.status + ')');
+      setStatus('응답이 JSON이 아님. HTTP ' + res.status);
       setHint(String(text).slice(0, 200));
       return;
     }
@@ -180,7 +180,7 @@ async function postSyncOpenFull() {
       } else {
         setStatus(err + (msg ? ': ' + msg : ''));
       }
-      setHint('Executions, sync_log 시트');
+      setHint('GAS Executions·스크립트 내 오류, sync_log 시트');
       return;
     }
 
@@ -190,28 +190,28 @@ async function postSyncOpenFull() {
     const p = d.products;
     const o = d.orders;
     setStatus(
-      '끝 — members ' +
+      '완료. members ' +
         (m && m.rows != null ? m.rows : '—') +
-        ' / products ' +
+        '행 · products ' +
         (p && p.rows != null ? p.rows : '—') +
-        ' / orders ' +
+        '행 · orders ' +
         (o && o.orderRows != null ? o.orderRows : '—') +
-        '건, 품목 ' +
+        '건(품목 행 ' +
         (o && o.itemRows != null ? o.itemRows : '—') +
-        '행'
+        ')'
     );
     const sheetUrl = d.spreadsheetUrl != null ? String(d.spreadsheetUrl).trim() : '';
     if (sheetUrl) {
       showSheetsButton(sheetUrl);
-      setHint('시트는 아래');
+      setHint('시트 URL은 GAS Property SHEETS_MASTER_ID·마스터 생성 여부에 따른다.');
     } else {
       hideSheetsButton();
-      setHint('SHEETS_MASTER_ID 없으면 URL 비움');
+      setHint('시트 URL이 없다. SHEETS_MASTER_ID·dbSetup·배포 스크립트를 확인.');
     }
   } catch (e) {
     setChip('오류', 'err');
-    setStatus('네트: ' + (e && e.message != null ? e.message : String(e)));
-    setHint('CORS, 배포 URL, Web App 권한');
+    setStatus('브라우저 요청 실패: ' + (e && e.message != null ? e.message : String(e)));
+    setHint('CORS(배포에 미러링)·exec URL·Web App 액세스(익명/계정) 순으로 본다.');
   } finally {
     syncBusy = false;
     setLoading(false);
@@ -236,13 +236,14 @@ function wireSync() {
       confirmInput.disabled = true;
     }
     if (actionNote) {
-      actionNote.textContent = 'exec URL 없음 — __SOLPATH__.gasBaseUrl';
+      actionNote.textContent =
+        'GAS Web App …/exec 를 window.__SOLPATH__.gasBaseUrl 에 둔다. type=module app.js 보다 위에 위치시킨다.';
     }
     return;
   }
   refreshSyncButtonState();
   if (actionNote) {
-    actionNote.textContent = 'Open API·쿼터. 실패 시 Executions·sync_log';
+    actionNote.textContent = '1회당 Open API·쿼터·GAS가 소비된다. 실패 시 GAS Executions·sync_log를 본다.';
   }
   btnSync.addEventListener('click', function onSync() {
     postSyncOpenFull();
@@ -257,15 +258,15 @@ async function main() {
   }
   hideSheetsButton();
   if (GAS_MODE.useMock) {
-    setChip('로컬', 'soft');
-    setStatus('대기');
-    setHint('module보다 먼저 __SOLPATH__ = { gasBaseUrl }');
+    setChip('로컬 / URL 없음', 'soft');
+    setStatus('대기 — exec URL이 없다.');
+    setHint('위젯: __SOLPATH__.gasBaseUrl 에 Web App exec URL. app.js module 보다 먼저. 로컬: config.js FALLBACK(커밋 금지).');
     wireSync();
     return;
   }
-  setChip('연결', 'ok');
-  setStatus('members → products → orders');
-  setHint('');
+  setChip('연결됨', 'ok');
+  setStatus('준비됨. 아래 잠금 문구 입력 후 전체 데이터 동기화로 실행.');
+  setHint('순서: members → products(1p) → orders. 중단·재시도는 GAS 쪽 로그에 따른다.');
   wireSync();
 }
 
