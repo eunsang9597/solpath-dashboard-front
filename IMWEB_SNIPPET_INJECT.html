@@ -1,8 +1,12 @@
 <!--
-  Plan B — 아임웹이 iframe 을 막을 때 (CSP / X-Frame-Options / 위젯 정책).
-  코드(HTML) 위젯에 그대로 붙이기: css + 빈 마운트 + type=module (jsDelivr 절대경로).
+  Plan B — iframe 막힐 때. 코드 위젯에 그대로 붙이기 (jsDelivr 절대경로).
+  @main → @<커밋SHA> 로 캐시 고정.
 
-  @main 대신 @<커밋SHA> 로 고정하면 캐시 안정적.
+  **크기**
+  - 아임웹: 섹션/열 너비·여백은 에디터(틀). 이 위젯은 그 안에 들어감.
+  - #solpath-root style: `max-width:960px` → `100%` 이면 열 꽉 채움.
+  - 안쪽 상한: CSS 변수 `--solpath-shell-max` (기본 42rem). 이 div에만
+    `style="…;--solpath-shell-max:min(100%,56rem)"` 등으로 조절.
 -->
 <link
   rel="stylesheet"

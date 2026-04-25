@@ -1,4 +1,6 @@
 :root {
+  /* 위젯: #solpath-root style 로 덮기 예) --solpath-shell-max: 100% 또는 min(100%, 56rem) */
+  --solpath-shell-max: 42rem;
   --ink: #12161c;
   --muted: #5c6570;
   --line: #e2e6ec;
@@ -41,7 +43,7 @@ code {
 }
 
 .app-shell {
-  max-width: 42rem;
+  max-width: var(--solpath-shell-max);
   margin: 0 auto;
   padding: clamp(1.25rem, 3vw, 2rem) clamp(1rem, 3vw, 1.5rem) 2.5rem;
 }
