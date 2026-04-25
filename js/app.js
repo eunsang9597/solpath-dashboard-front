@@ -351,7 +351,7 @@ async function postSyncOpenFull() {
       setHint('');
     } else {
       hideSheetsButton();
-      setHint('집계 시트 링크를 받지 못했습니다. 운영 절차에 따라 문의합니다.');
+      setHint('집계(마스터) 파일로 가는 링크를 받지 못했습니다. 내부 담당자에게 문의하세요.');
     }
   } catch (e) {
     setChip('오류', 'err');
@@ -382,14 +382,14 @@ function wireSync() {
     }
     if (actionNote) {
       actionNote.textContent =
-        '이 기능을 쓰려면 서버와의 연결이 먼저 잡혀 있어야 합니다. 운영에서 안내받은 절차를 확인합니다.';
+        '상단 배지가 [연결됨]이 아니면 이 화면을 쓸 수 없습니다. 내부 담당자에게 문의하세요.';
     }
     return;
   }
   refreshSyncButtonState();
   if (actionNote) {
     actionNote.textContent =
-      '[실행] 1회마다 솔루션 연동 기준의 현재 데이터로 집계 시트를 덮어쓰며, 수 분이 걸릴 수 있습니다.';
+      '[실행]을 누를 때마다, 지금 시점의 솔루션 연동 데이터로 집계(마스터) 시트를 통째로 갱신합니다. 수 분 걸릴 수 있습니다.';
   }
   btnSync.addEventListener('click', function onSync() {
     postSyncOpenFull();
@@ -407,7 +407,7 @@ async function main() {
   setSyncAggregateHeadLink('');
   if (GAS_MODE.useMock) {
     setChip('미연결', 'soft');
-    setStatus('서버와 연결이 잡혀 있지 않습니다. 운영에서 안내받은 절차에 따라 환경을 확인합니다.');
+    setStatus('서버와 연결되지 않았습니다. 내부 담당자에게 문의하세요.');
     setHint('');
     wireSync();
     return;

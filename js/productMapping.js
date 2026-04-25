@@ -526,7 +526,7 @@ export function initProductMapping(mount) {
 
   async function loadState() {
     if (!GAS_MODE.canSync) {
-      setHint('GAS Web App URL이 주입되지 않았습니다.', true);
+      setHint('상단 배지가 미연결이면 서버와 연결되지 않은 상태입니다. 내부 담당자에게 문의하세요.', true);
       updateExternalLinks({});
       return;
     }
@@ -694,7 +694,12 @@ export function initProductMapping(mount) {
       const dInit = r.data || {};
       const nSeeded = dInit.seededRowCount != null ? Number(dInit.seededRowCount) : 0;
       if (nSeeded > 0) {
-        setHint('원천 DB 기준으로 분류 시트에 상품 ' + nSeeded + '건을 넣었습니다. 시트에서도 확인하세요.', true);
+        setHint(
+          '집계(마스터) 쪽 상품 목록을 기준으로, 운영(분류) 시트에 상품 ' +
+            nSeeded +
+            '건을 넣었습니다. 구글 시트에서도 확인하세요.',
+          true
+        );
         syncFooterAndInstruct();
       }
     } catch (_e) {
@@ -772,8 +777,8 @@ export function initProductMapping(mount) {
       return;
     }
     const ok = window.confirm(
-      '운영 분류 시트를 비우고, 원천 DB의 products만 보고 다시 채웁니다.\n\n' +
-        '지금까지 바꾼 분류·메모는 복구할 수 없습니다. 정말 진행할까요?'
+      '「상품 매핑(분류)」시트를 비우고, 집계(마스터) 파일의 상품 목록만 보고 다시 채웁니다.\n\n' +
+        '지금까지 바꾼 분류·상태는 복구할 수 없습니다. 정말 진행할까요?'
     );
     if (!ok) {
       return;
@@ -795,7 +800,7 @@ export function initProductMapping(mount) {
       const n = r.data && r.data.seededRowCount != null ? Number(r.data.seededRowCount) : 0;
       await loadList();
       setHint(
-        '초기화했습니다. 원천 기준 ' + n + '건 · 기본값 미분류·진행으로 맞춤.',
+        '초기화했습니다. 집계(마스터) 기준 ' + n + '건 · 기본값은 미분류·진행으로 맞춤.',
         true
       );
       syncFooterAndInstruct();
@@ -805,7 +810,7 @@ export function initProductMapping(mount) {
       if (m === 'timeout') {
         t += '응답이 너무 오래 걸렸습니다. 잠시 뒤 다시 시도합니다.';
       } else if (m === 'script error') {
-        t += '서버가 JSON이 아닌 응답을 보냈습니다. GAS 배포·실행 기록(Executions)을 확인합니다.';
+        t += '서버 응답이 비정상입니다. 잠시 후 다시 시도하거나 내부 담당자에게 문의하세요.';
       } else {
         t += m ? '(' + m + ')' : '네트워크 또는 스크립트 로딩을 확인합니다.';
       }
