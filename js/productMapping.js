@@ -715,8 +715,17 @@ export function initProductMapping(mount) {
         true
       );
       syncFooterAndInstruct();
-    } catch (_e) {
-      setHint('초기화 요청에 실패했습니다.', true);
+    } catch (e) {
+      const m = e && e.message != null ? String(e.message) : '';
+      let t = '초기화 요청에 실패했습니다. ';
+      if (m === 'timeout') {
+        t += '응답이 너무 오래 걸렸습니다. 잠시 뒤 다시 시도합니다.';
+      } else if (m === 'script error') {
+        t += '서버가 JSON이 아닌 응답을 보냈습니다. GAS 배포·실행 기록(Executions)을 확인합니다.';
+      } else {
+        t += m ? '(' + m + ')' : '네트워크 또는 스크립트 로딩을 확인합니다.';
+      }
+      setHint(t, true);
       syncFooterAndInstruct();
     } finally {
       if (el.btnReset) {
