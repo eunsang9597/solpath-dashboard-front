@@ -160,7 +160,7 @@ export function initProductMapping(mount) {
   let localRows = [];
   let baselineSig = new Map();
   let ready = false;
-  let pmBootstrapped = false;
+  let loadStateInflight = false;
   const url = String(GAS_BASE_URL).trim();
 
   function setHint(t, show) {
@@ -418,6 +418,10 @@ export function initProductMapping(mount) {
       setHint('GAS Web App URL이 주입되지 않았습니다.', true);
       return;
     }
+    if (loadStateInflight) {
+      return;
+    }
+    loadStateInflight = true;
     if (el.listLoading) {
       el.listLoading.removeAttribute('hidden');
     }
@@ -458,6 +462,7 @@ export function initProductMapping(mount) {
     } catch (_e) {
       setHint('상태를 불러오지 못했습니다.', true);
     } finally {
+      loadStateInflight = false;
       if (el.listLoading) {
         el.listLoading.setAttribute('hidden', '');
       }
@@ -495,10 +500,18 @@ export function initProductMapping(mount) {
       const rows = (res.data && res.data.rows) || [];
       localRows = JSON.parse(JSON.stringify(rows));
       snapshotBaseline();
-      render();
+      try {
+        render();
+      } catch (re) {
+        const em = re && re.message != null ? String(re.message) : String(re);
+        setHint('목록 화면을 그리지 못했습니다. ' + em, true);
+        syncFooterAndInstruct();
+        return;
+      }
       syncFooterAndInstruct();
     } catch (_e) {
-      setHint('목록을 불러오지 못했습니다.', true);
+      const em = _e && _e.message != null ? String(_e.message) : String(_e);
+      setHint('목록을 불러오지 못했습니다. ' + (em.length > 120 ? em.slice(0, 120) + '…' : em), true);
       syncFooterAndInstruct();
     } finally {
       if (el.listLoading) {
@@ -614,11 +627,11 @@ export function initProductMapping(mount) {
   const tPm = mount.querySelector('#sp-tab-pm');
   if (tPm) {
     tPm.addEventListener('click', function () {
-      if (pmBootstrapped) {
-        return;
-      }
-      pmBootstrapped = true;
-      loadState();
+      window.setTimeout(function () {
+        if (tPm.classList.contains('is-active')) {
+          loadState();
+        }
+      }, 0);
     });
   }
 }
