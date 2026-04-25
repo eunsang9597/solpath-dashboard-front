@@ -198,6 +198,60 @@ function hideSheetsButton() {
   syncFeedbackBlock_();
 }
 
+/**
+ * GAS `TextOutput`에는 CORS(setHeader)가 없고, `fetch`는 응답 CORS를 요구 → JSONP로 동일 출처·크로스 오리진 모두 JS만 실행
+ * @param {string} baseUrl
+ * @param {string} action
+ * @param {number} timeoutMs
+ * @returns {Promise<Object>}
+ */
+function gasJsonp_(baseUrl, action, timeoutMs) {
+  return new Promise(function (resolve, reject) {
+    const cb =
+      '_solpath_jp_' + String(Date.now()) + '_' + String(Math.floor(Math.random() * 1e9));
+    const lim = timeoutMs != null ? timeoutMs : 360000;
+    const t = window.setTimeout(function () {
+      cleanup();
+      reject(new Error('timeout'));
+    }, lim);
+    const s = document.createElement('script');
+    const g = globalThis;
+    function cleanup() {
+      window.clearTimeout(t);
+      try {
+        delete g[cb];
+      } catch (_e) {
+        g[cb] = undefined;
+      }
+      if (s.parentNode) {
+        s.parentNode.removeChild(s);
+      }
+    }
+    g[cb] = function (/** @type {object} */ data) {
+      cleanup();
+      resolve(data);
+    };
+    let u;
+    try {
+      u = new URL(baseUrl);
+    } catch (_e) {
+      cleanup();
+      reject(new Error('bad url'));
+      return;
+    }
+    u.searchParams.set('format', 'jsonp');
+    u.searchParams.set('callback', cb);
+    u.searchParams.set('action', action);
+    s.async = true;
+    s.src = u.toString();
+    s.onerror = function () {
+      cleanup();
+      reject(new Error('script error'));
+    };
+    document.head.appendChild(s);
+  });
+}
+
 async function postSyncOpenFull() {
   const url = String(GAS_BASE_URL).trim();
   if (!url || !btnSync || !confirmOk()) {
@@ -212,26 +266,7 @@ async function postSyncOpenFull() {
   setChip('처리', 'soft');
 
   try {
-    // GAS+브라우저: `application/x-www-form-urlencoded; charset=…` + 수동 헤더 조합이
-    // OPTIONS 프리플라이트를 촉발할 수 있어, CORS simple POST(프리플라이트 없음)는 `text/plain` 본문으로 통일
-    const res = await fetch(url, {
-      method: 'POST',
-      body: 'action=' + encodeURIComponent(syncAction),
-      headers: { 'Content-Type': 'text/plain' },
-      mode: 'cors',
-      credentials: 'omit',
-      cache: 'no-store'
-    });
-    const text = await res.text();
-    let j;
-    try {
-      j = JSON.parse(text);
-    } catch (_e) {
-      setChip('오류', 'err');
-      setStatus('응답을 확인할 수 없습니다. 잠시 후 [실행]을 다시 누릅니다.');
-      setHint('');
-      return;
-    }
+    const j = await gasJsonp_(url, syncAction, 360000);
     if (!j.ok) {
       setChip('실패', 'err');
       const err = j.error != null ? String(j.error) : 'ERROR';
