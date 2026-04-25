@@ -17,7 +17,6 @@ function ensureShell() {
   if (m.getAttribute('data-solpath-autofill') === '0') {
     return m;
   }
-  // 아임웹에 예전에 붙인 정적 HTML(구 .app-shell)이 있으면 그대로 두지 않고 v2로 갈아탐
   if (!m.querySelector('.app-shell--v6')) {
     m.innerHTML = SYNC_PAGE_SHELL_HTML;
   }

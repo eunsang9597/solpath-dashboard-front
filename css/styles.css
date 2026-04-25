@@ -258,10 +258,6 @@ code {
   border-radius: var(--radius) var(--radius) 0 0;
 }
 
-.panel--result {
-  border-color: #e4e8ef;
-}
-
 .panel__head {
   display: flex;
   flex-wrap: wrap;
