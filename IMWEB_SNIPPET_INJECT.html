@@ -1,15 +1,13 @@
 <!--
-  Plan B — iframe 막힐 때. **아래 `<script>window.__SOLPATH__` 를 꼭 넣어야** 동기 버튼이 살아남.
-  (GitHub의 config.js 는 URL/토큰을 비워 두므로, 위젯에서만 주입하는 방식.)
-
-  @main → @<커밋SHA> 로 캐시 고정.
-
-  **크기** — #solpath-root 의 max-width, --solpath-shell-max 등은 docs/README 참고.
+  ① 맨 위 <script> 의 gasBaseUrl·token 를 **진짜 값**으로 바꾼 뒤 저장.
+  ② 아래 jsDelivr URL 의 @뒤는 **GitHub 커밋 SHA** (캐시 막기). 코드 올릴 때마다
+     https://github.com/eunsang9597/solpath-dashboard-front/commits/main 에서 최신 커밋으로 갱신.
+  ③ <script type="module" src=...> 보다 __SOLPATH__ 가 **위**에 있어야 함.
 -->
 <script>
   window.__SOLPATH__ = {
-    gasBaseUrl: 'https://script.google.com/macros/s/여기배포ID/exec',
-    token: 'GAS Script Property SOLPATH_DASHBOARD_TOKEN 과 동일한 문자열'
+    gasBaseUrl: 'https://script.google.com/macros/s/배포ID-여기-바꿈/exec',
+    token: 'GAS_스크립트_속성_SOLPATH_DASHBOARD_TOKEN_와_동일'
   };
 </script>
 <link
@@ -18,10 +16,10 @@
 />
 <link
   rel="stylesheet"
-  href="https://cdn.jsdelivr.net/gh/eunsang9597/solpath-dashboard-front@main/css/styles.css"
+  href="https://cdn.jsdelivr.net/gh/eunsang9597/solpath-dashboard-front@16820d9/css/styles.css"
 />
 <div id="solpath-root" class="solpath-mount" data-solpath-autofill="1" style="max-width:960px;margin:0 auto"></div>
 <script
   type="module"
-  src="https://cdn.jsdelivr.net/gh/eunsang9597/solpath-dashboard-front@main/js/app.js"
+  src="https://cdn.jsdelivr.net/gh/eunsang9597/solpath-dashboard-front@16820d9/js/app.js"
 ></script>

@@ -7,7 +7,7 @@
 - 개인: [eunsang9597/solpath-dashboard-front](https://github.com/eunsang9597/solpath-dashboard-front) (`origin`)
 - Organization: [solpath-labs-dev/solpath-dashboard-front](https://github.com/solpath-labs-dev/solpath-dashboard-front) (`mirror`)
 
-**첫 화면** — 데이터 동기화(설명 + 버튼; 백 `POST` 붙이면 `js/config.js` 의 `ENABLE_SYNC_ACTION`). **아임웹 위젯:** iframe — [IMWEB_SNIPPET.html](./IMWEB_SNIPPET.html) · **막히면** 스크립트 직접 삽입 — [IMWEB_SNIPPET_INJECT.html](./IMWEB_SNIPPET_INJECT.html). **CORS/스크립트:** [docs/IMWEB_CORS.md](./docs/IMWEB_CORS.md).
+**첫 화면** — 데이터 동기화. **아임웹:** [IMWEB_SNIPPET_INJECT.html](./IMWEB_SNIPPET_INJECT.html) 로 `window.__SOLPATH__` + jsDelivr `@커밋` (캐시). iframe — [IMWEB_SNIPPET.html](./IMWEB_SNIPPET.html). **CORS:** [docs/IMWEB_CORS.md](./docs/IMWEB_CORS.md).
 
 ## 호스팅 (무료)
 

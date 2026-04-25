@@ -240,8 +240,13 @@ async function main() {
   hideSheetsButton();
   if (GAS_MODE.useMock) {
     setChip('로컬 / URL 없음', 'soft');
-    setStatus('대기 — config.js에 GAS Web App exec URL 이 필요합니다');
-    setHint('아임웹: IMWEB_SNIPPET_INJECT.html · CORS docs/IMWEB_CORS.md');
+    setStatus('대기 — Web App exec URL + 토큰이 아직 주입되지 않았습니다');
+    setHint(
+      '① 위젯 HTML 맨 **위**에 <script>window.__SOLPATH__={ gasBaseUrl, token }</script> (module보다 먼저) ② gasBaseUrl/token에 **실제 값** ③ jsDelivr는 @main 캐시될 수 있음 → app.js 를 @커밋SHA 로 (IMWEB_SNIPPET_INJECT.html)'
+    );
+    if (typeof globalThis !== 'undefined') {
+      console.info('[솔패스] __SOLPATH__ =', globalThis.__SOLPATH__, '— 비어 있으면 주입 스크립트·순서·캐시 확인');
+    }
     wireSync();
     return;
   }
