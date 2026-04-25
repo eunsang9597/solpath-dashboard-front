@@ -1,7 +1,6 @@
-<!-- 
-  아임웹 > 디자인 > 코드(HTML) 위젯에 **그대로** 붙여 넣는 예시.
-  - URL의 @main 은 @<커밋SHA> 로 바꾸면 캐시를 고정할 수 있음.
-  - 레포: https://github.com/eunsang9597/solpath-dashboard-front
+<!--
+  Plan A — iframe (많은 사이트에서 막힘: CSP frame-ancestors / 위젯 정책).
+  안 보이면 Plan B: IMWEB_SNIPPET_INJECT.html
 -->
 <div class="solpath-embed" style="max-width:960px;margin:0 auto">
   <iframe
@@ -11,5 +10,7 @@
     loading="lazy"
     referrerpolicy="no-referrer-when-downgrade"
   ></iframe>
-  <p style="text-align:center;font-size:12px;color:#6b7684;margin:10px 0 0">iframe이 막히면, 같은 URL을 브라우저 새 창에서 연다(호스팅/위젯 정책은 사이트마다 다름).</p>
+  <p style="text-align:center;font-size:12px;color:#6b7684;margin:10px 0 0">
+    iframe 이 비어 있거나 막히면 → <strong>IMWEB_SNIPPET_INJECT.html</strong> (스크립트·CSS 직접 삽입)
+  </p>
 </div>

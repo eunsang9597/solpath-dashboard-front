@@ -1,10 +1,34 @@
 import { GAS_MODE } from './config.js';
+import { SYNC_PAGE_SHELL_HTML } from './syncPageTemplate.js';
 
-const statusLine = document.getElementById('statusLine');
-const hintLine = document.getElementById('hintLine');
-const envChip = document.getElementById('envChip');
-const btnSync = document.getElementById('btnSync');
-const actionNote = document.getElementById('actionNote');
+const MOUNT_ID = 'solpath-root';
+
+function getMount() {
+  return document.getElementById(MOUNT_ID);
+}
+
+function ensureShell() {
+  const mount = getMount();
+  if (!mount) {
+    return null;
+  }
+  if (mount.getAttribute('data-solpath-autofill') === '0') {
+    return mount;
+  }
+  if (!mount.querySelector('.app-shell')) {
+    mount.innerHTML = SYNC_PAGE_SHELL_HTML;
+  }
+  return mount;
+}
+
+const mount = ensureShell();
+const scope = mount != null ? mount : document;
+
+const statusLine = /** @type {HTMLElement | null} */ (scope.querySelector('#sp-statusLine'));
+const hintLine = /** @type {HTMLElement | null} */ (scope.querySelector('#sp-hintLine'));
+const envChip = /** @type {HTMLElement | null} */ (scope.querySelector('#sp-envChip'));
+const btnSync = /** @type {HTMLButtonElement | null} */ (scope.querySelector('#sp-btnSync'));
+const actionNote = /** @type {HTMLElement | null} */ (scope.querySelector('#sp-actionNote'));
 
 function setChip(text, kind) {
   if (!envChip) {
@@ -58,10 +82,15 @@ function wireSync() {
 }
 
 async function main() {
+  if (!mount) {
+    setChip('오류', 'err');
+    setStatus('#solpath-root 없음');
+    return;
+  }
   if (GAS_MODE.useMock) {
     setChip('로컬 / 설정 없음', 'soft');
     setStatus('대기 — js/config.js에 Web App exec URL(베이스)을 넣으면 "연결됨"으로 바꿀 수 있어요');
-    setHint('아임웹 위젯은 IMWEB_SNIPPET.html 참고(iframe). CORS·토큰은 docs/IMWEB_CORS.md');
+    setHint('아임웹: iframe이 막히면 IMWEB_SNIPPET_INJECT.html(스크립트 직접). CORS·토큰은 docs/IMWEB_CORS.md');
     wireSync();
     return;
   }

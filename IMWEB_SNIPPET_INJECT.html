@@ -1,0 +1,19 @@
+<!--
+  Plan B — 아임웹이 iframe 을 막을 때 (CSP / X-Frame-Options / 위젯 정책).
+  코드(HTML) 위젯에 그대로 붙이기: css + 빈 마운트 + type=module (jsDelivr 절대경로).
+
+  @main 대신 @<커밋SHA> 로 고정하면 캐시 안정적.
+-->
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"
+/>
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/gh/eunsang9597/solpath-dashboard-front@main/css/styles.css"
+/>
+<div id="solpath-root" class="solpath-mount" data-solpath-autofill="1" style="max-width:960px;margin:0 auto"></div>
+<script
+  type="module"
+  src="https://cdn.jsdelivr.net/gh/eunsang9597/solpath-dashboard-front@main/js/app.js"
+></script>

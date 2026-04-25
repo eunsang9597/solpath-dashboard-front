@@ -35,6 +35,11 @@ code {
   color: #1e3a5c;
 }
 
+/* 아임웹 #solpath-root (직접 삽입) */
+.solpath-mount {
+  min-height: 12rem;
+}
+
 .app-shell {
   max-width: 42rem;
   margin: 0 auto;

@@ -4,12 +4,16 @@
 
 ## 1. 위젯에 넣는 방식 (권장 순)
 
-1. **`<iframe src="https://cdn.jsdelivr.net/gh/…/index.html">`**  
-   - 위젯 본문은 **빈 div + iframe**만. 앱(HTML·CSS·`type=module` JS)은 **iframe 내부**에서 그대로 로드된다.  
-   - **부모(아임웹 페이지)와 origin이 다르므로** 아임웹 쪽 `postMessage` 연동이 필요할 때만 별도 설계(선택).
-2. **같은 URL을 `script`+`link`로 직접 삽입**  
-   - `type=module`·여러 asset은 아임웹 **코드 위젯**이 허용하는지(스크립트 묶기·순서) **한 번씩** 확인할 것.  
-   - 모듈이 막히면, 추후 `embed`용 단일 번들(비모듈)로 나누는 Phase를 둔다(에자일).
+1. **`<iframe src="https://cdn.jsdelivr.net/gh/…/index.html">`** (레포: `IMWEB_SNIPPET.html`)  
+   - 앱이 **자식 origin(jsDelivr)** 에서 돌아간다.  
+   - 다만 **아임웹·많은 빌더는 `iframe` 을 CSP·보안 정책으로 막거나, 편집기 미리보기에서만 막는** 경우가 있다. 그때는 2번으로 갈 것.
+
+2. **`<link>` + `#solpath-root` + `type=module` 스크립트** (레포: `IMWEB_SNIPPET_INJECT.html`) — **iframe 이 막힐 때 기본**  
+   - 스타일·`app.js`를 **jsDelivr 절대 URL**로 불러와 **부모 페이지 안**에 그린다.  
+   - `app.js`가 `syncPageTemplate.js` 마크업을 `#solpath-root`에 주입한다.  
+   - `type=module` 이 위젯에서 막히면(드묾) 비모듈 번들 Phase — 에자일로 추후.
+
+**id 충돌 방지** — 동기 화면 컨트롤 id 는 `sp-` 접두(예: `sp-statusLine`).
 
 **캐시** — `…@main`은 브랜치 해시 캐시로 바뀔 수 있으니, **배포 고정**이면 `@<커밋 SHA>` URL을 쓰면 된다(README·스니펫에 주석).
 
