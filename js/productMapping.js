@@ -135,10 +135,24 @@ async function productMappingApplyBatched_(baseUrl, allRows, maxEncLen) {
 }
 
 /**
+ * @param {unknown} n
+ * @return {string}
+ */
+function pmRowKey_(n) {
+  return String(n != null ? n : '').trim();
+}
+
+/**
  * @param {object} r
  */
 function rowSig(r) {
-  return [r.prod_no, r.internal_category, r.lifecycle, r.product_name, r.notes != null ? String(r.notes) : ''].join('\t');
+  return [
+    pmRowKey_(r.prod_no),
+    String(r.internal_category != null ? r.internal_category : '').trim(),
+    String(r.lifecycle != null ? r.lifecycle : '').trim(),
+    r.product_name,
+    r.notes != null ? String(r.notes) : ''
+  ].join('\t');
 }
 
 /**
@@ -215,7 +229,7 @@ export function initProductMapping(mount) {
     let dirty = false;
     for (let i = 0; i < localRows.length; i++) {
       const r = localRows[i];
-      const k = r.prod_no;
+      const k = pmRowKey_(r.prod_no);
       if (rowSig(r) !== baselineSig.get(k)) {
         dirty = true;
         break;
@@ -237,7 +251,7 @@ export function initProductMapping(mount) {
     baselineSig = new Map();
     for (let i = 0; i < localRows.length; i++) {
       const r = localRows[i];
-      baselineSig.set(r.prod_no, rowSig(r));
+      baselineSig.set(pmRowKey_(r.prod_no), rowSig(r));
     }
     recomputeDirty();
   }
@@ -313,8 +327,9 @@ export function initProductMapping(mount) {
         const row2 = rows2[r];
         const nameShort = displayNameShort(row2.product_name);
         const full = row2.product_name != null ? String(row2.product_name) : '';
+        const rowPk = pmRowKey_(row2.prod_no);
         const dataIdx = localRows.findIndex(function (x) {
-          return x.prod_no === row2.prod_no;
+          return pmRowKey_(x.prod_no) === rowPk;
         });
         const selCat = buildSelectCat(dataIdx, row2.internal_category);
         const selLife = buildSelectLife(dataIdx, row2.lifecycle);
@@ -362,10 +377,11 @@ export function initProductMapping(mount) {
   }
 
   function buildSelectCat(dataIdx, val) {
+    const v = val != null ? String(val).trim() : '';
     const opts = [];
     for (let i = 0; i < CAT_ORDER.length; i++) {
       const c = CAT_ORDER[i];
-      const selected = c === val ? ' selected' : '';
+      const selected = c === v ? ' selected' : '';
       opts.push(
         '<option value="' + escAttr(c) + '"' + selected + '>' + escAttr(CAT_LABEL[c] || c) + '</option>'
       );
@@ -380,11 +396,12 @@ export function initProductMapping(mount) {
   }
 
   function buildSelectLife(dataIdx, val) {
+    const v = val != null ? String(val).trim() : '';
     const lifeKeys = Object.keys(LIFE_LABEL);
     const opts = [];
     for (let i = 0; i < lifeKeys.length; i++) {
       const l = lifeKeys[i];
-      const selected = l === val ? ' selected' : '';
+      const selected = l === v ? ' selected' : '';
       opts.push(
         '<option value="' + escAttr(l) + '"' + selected + '>' + escAttr(LIFE_LABEL[l]) + '</option>'
       );
@@ -411,13 +428,13 @@ export function initProductMapping(mount) {
       return;
     }
     const i = parseInt(idx, 10);
-    if (isNaN(i) || !localRows[i]) {
+    if (isNaN(i) || i < 0 || !localRows[i]) {
       return;
     }
     if (t.classList.contains('sp-pm-sel--cat')) {
-      localRows[i].internal_category = t.value;
+      localRows[i].internal_category = String(t.value).trim();
     } else {
-      localRows[i].lifecycle = t.value;
+      localRows[i].lifecycle = String(t.value).trim();
     }
     recomputeDirty();
   }
@@ -535,11 +552,15 @@ export function initProductMapping(mount) {
     }
   }
 
-  async function loadList() {
+  /**
+   * @param {{ fromApply?: boolean }|undefined} opts
+   */
+  async function loadList(opts) {
     if (!GAS_MODE.canSync) {
       return;
     }
-    if (el.listLoading) {
+    const fromApply = opts && opts.fromApply;
+    if (el.listLoading && !fromApply) {
       el.listLoading.removeAttribute('hidden');
     }
     setHint('', false);
@@ -571,6 +592,11 @@ export function initProductMapping(mount) {
       }
       const rows = (res.data && res.data.rows) || [];
       localRows = JSON.parse(JSON.stringify(rows));
+      for (let j = 0; j < localRows.length; j++) {
+        const lr = localRows[j];
+        lr.internal_category = String(lr.internal_category != null ? lr.internal_category : 'unmapped').trim() || 'unmapped';
+        lr.lifecycle = String(lr.lifecycle != null ? lr.lifecycle : 'active').trim() || 'active';
+      }
       snapshotBaseline();
       try {
         render();
@@ -586,10 +612,16 @@ export function initProductMapping(mount) {
       setHint('목록을 불러오지 못했습니다. ' + (em.length > 120 ? em.slice(0, 120) + '…' : em), true);
       syncFooterAndInstruct();
     } finally {
-      if (el.listLoading) {
+      if (el.listLoading && !fromApply) {
         el.listLoading.setAttribute('hidden', '');
       }
     }
+  }
+
+  function pmDelay_(ms) {
+    return new Promise(function (res) {
+      window.setTimeout(res, ms);
+    });
   }
 
   async function onInit() {
@@ -653,9 +685,11 @@ export function initProductMapping(mount) {
     const dirty = [];
     for (let i = 0; i < localRows.length; i++) {
       const r = localRows[i];
-      if (rowSig(r) !== baselineSig.get(r.prod_no)) {
+      if (rowSig(r) !== baselineSig.get(pmRowKey_(r.prod_no))) {
+        const pn = r.prod_no;
+        const pnum = typeof pn === 'number' && !isNaN(pn) ? pn : parseInt(String(pn), 10);
         dirty.push({
-          prod_no: r.prod_no,
+          prod_no: isNaN(pnum) ? pn : pnum,
           product_name: r.product_name,
           internal_category: r.internal_category,
           lifecycle: r.lifecycle,
@@ -670,18 +704,30 @@ export function initProductMapping(mount) {
     if (el.listLoading) {
       el.listLoading.removeAttribute('hidden');
     }
+    if (el.sections) {
+      el.sections.classList.add('sp-pm-sections--saving');
+    }
     setHint('', false);
+    const tSaveStart = Date.now();
+    const minSavingMs = 500;
     try {
       const r = await productMappingApplyBatched_(url, dirty, 5000);
       if (!r || !r.ok) {
         setHint(errMsg(r) || '저장 실패', true);
         return;
       }
-      await loadList();
+      await loadList({ fromApply: true });
+      const rem = minSavingMs - (Date.now() - tSaveStart);
+      if (rem > 0) {
+        await pmDelay_(rem);
+      }
       setHint('저장했습니다.', true);
     } catch (_e) {
       setHint('저장 중 오류가 났습니다.', true);
     } finally {
+      if (el.sections) {
+        el.sections.classList.remove('sp-pm-sections--saving');
+      }
       if (el.listLoading) {
         el.listLoading.setAttribute('hidden', '');
       }
