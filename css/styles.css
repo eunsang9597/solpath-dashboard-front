@@ -993,7 +993,8 @@ input.sp-confirm:disabled {
 .sp-pm-cat--solpass .sp-pm-cat__sum,
 .sp-pm-cat--solutine .sp-pm-cat__sum,
 .sp-pm-cat--challenge .sp-pm-cat__sum,
-.sp-pm-cat--textbook .sp-pm-cat__sum {
+.sp-pm-cat--textbook .sp-pm-cat__sum,
+.sp-pm-cat--jasoseo .sp-pm-cat__sum {
   color: #fff;
 }
 
@@ -1001,7 +1002,8 @@ input.sp-confirm:disabled {
 .sp-pm-cat--solpass .sp-pm-cat__title::before,
 .sp-pm-cat--solutine .sp-pm-cat__title::before,
 .sp-pm-cat--challenge .sp-pm-cat__title::before,
-.sp-pm-cat--textbook .sp-pm-cat__title::before {
+.sp-pm-cat--textbook .sp-pm-cat__title::before,
+.sp-pm-cat--jasoseo .sp-pm-cat__title::before {
   opacity: 0.9;
   color: #fff;
 }
@@ -1051,11 +1053,22 @@ input.sp-confirm:disabled {
   box-shadow: 0 2px 10px rgba(93, 64, 55, 0.18);
 }
 
+/* 자소서: 틸 */
+.sp-pm-cat--jasoseo .sp-pm-cat__sum {
+  background: linear-gradient(180deg, #26a69a 0%, #00695c 100%);
+}
+
+.sp-pm-cat--jasoseo {
+  border-color: rgba(0, 105, 92, 0.45);
+  box-shadow: 0 2px 10px rgba(0, 105, 92, 0.18);
+}
+
 .sp-pm-cat--unmapped .sp-pm-cat__badge,
 .sp-pm-cat--solpass .sp-pm-cat__badge,
 .sp-pm-cat--solutine .sp-pm-cat__badge,
 .sp-pm-cat--challenge .sp-pm-cat__badge,
-.sp-pm-cat--textbook .sp-pm-cat__badge {
+.sp-pm-cat--textbook .sp-pm-cat__badge,
+.sp-pm-cat--jasoseo .sp-pm-cat__badge {
   background: rgba(255, 255, 255, 0.22);
   color: #fff;
 }
@@ -1064,7 +1077,8 @@ input.sp-confirm:disabled {
 .sp-pm-cat--solpass .sp-pm-cat__n,
 .sp-pm-cat--solutine .sp-pm-cat__n,
 .sp-pm-cat--challenge .sp-pm-cat__n,
-.sp-pm-cat--textbook .sp-pm-cat__n {
+.sp-pm-cat--textbook .sp-pm-cat__n,
+.sp-pm-cat--jasoseo .sp-pm-cat__n {
   color: rgba(255, 255, 255, 0.9);
 }
 
@@ -1086,6 +1100,10 @@ input.sp-confirm:disabled {
 
 .sp-pm-cat--textbook .sp-pm-cat__body {
   border-top: 3px solid #5d4037;
+}
+
+.sp-pm-cat--jasoseo .sp-pm-cat__body {
+  border-top: 3px solid #00695c;
 }
 
 .sp-pm-cat__body {

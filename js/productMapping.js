@@ -3,8 +3,8 @@
  */
 import { GAS_BASE_URL, GAS_MODE } from './config.js';
 
-const CAT_ORDER = ['unmapped', 'solpass', 'solutine', 'challenge', 'textbook'];
-/** 미분류(unmapped) 제외 4칸 — 한 행에 솔패스~교재 */
+const CAT_ORDER = ['unmapped', 'solpass', 'solutine', 'challenge', 'textbook', 'jasoseo'];
+/** 미분류(unmapped) 제외 — 솔패스~자소서(한 행 래핑) */
 const CAT_ROW4 = CAT_ORDER.filter(function (c) {
   return c !== 'unmapped';
 });
@@ -13,9 +13,10 @@ const CAT_LABEL = {
   solpass: '솔패스',
   solutine: '솔루틴',
   challenge: '챌린지',
-  textbook: '교재'
+  textbook: '교재',
+  jasoseo: '자소서'
 };
-const LIFE_LABEL = { active: '진행', archived: '만료', test: '테스트' };
+const LIFE_LABEL = { active: '진행', archived: '만료', test: '테스트', legacy: '(구)상품' };
 
 const NAME_MAX = 20;
 
