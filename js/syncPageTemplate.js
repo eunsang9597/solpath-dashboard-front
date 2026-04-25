@@ -17,7 +17,7 @@ export const SYNC_PAGE_SHELL_HTML = `<div class="app-shell app-shell--v9">
               <li><strong>실행</strong> 1회마다 집계 시트가 <strong>해당 시점의 연동 스냅샷</strong>으로 <strong>전면 갱신</strong>됩니다. 시트에 직접 적어 둔 메모·수식·수동 정리는 <strong>덮어쓰일 수 있으므로</strong>, 남겨 둘 내용은 반드시 <strong>실행 전</strong>에 복사·다른 파일로 옮깁니다.</li>
               <li>확인 입력란에 <code>데이터 동기화</code>를 <strong>한 글자도 틀리지 않게</strong> 입력한 뒤 <strong>실행</strong>합니다. 실수로 전체를 돌리는 것을 막기 위한 잠금입니다.</li>
               <li>한 번 실행하는 데 <strong>수 분</strong> 걸릴 수 있습니다. 완료되면 메시지와 <strong>집계 시트 확인하기</strong>로 반영 건수를 확인한 뒤, 스프레드시트를 열어 검증합니다.</li>
-              <li>배지가 <strong>미연결</strong>이면 GAS 웹앱 URL·스니펫이 제대로 안 붙은 상태입니다. 임웹/운영에 안내된 주입 절차를 확인합니다.</li>
+              <li>상단 배지는 <strong>연결됨</strong>이면 정상입니다. <strong>미연결</strong>이거나 오류로 보이면 <strong>내부 담당자에게</strong> 연락해 주세요.</li>
             </ul>
           </div>
           <div class="sp-intro-card sp-intro-card--pm" id="sp-introPm" hidden>
