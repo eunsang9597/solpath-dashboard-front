@@ -1,7 +1,8 @@
-import { GAS_MODE } from './config.js';
+import { GAS_MODE, GAS_BASE_URL, DASHBOARD_SYNC_API_TOKEN } from './config.js';
 import { SYNC_PAGE_SHELL_HTML } from './syncPageTemplate.js';
 
 const MOUNT_ID = 'solpath-root';
+const syncAction = 'syncOpenFull';
 
 function getMount() {
   return document.getElementById(MOUNT_ID);
@@ -57,6 +58,73 @@ function setHint(text) {
   }
 }
 
+/**
+ * GAS `HttpOpenSync.js` `doPost` — `action=syncOpenFull` + `token`
+ */
+async function postSyncOpenFull() {
+  const url = String(GAS_BASE_URL).trim();
+  if (!url || !btnSync) {
+    return;
+  }
+  const body = new URLSearchParams();
+  body.set('action', syncAction);
+  body.set('token', String(DASHBOARD_SYNC_API_TOKEN).trim());
+
+  btnSync.disabled = true;
+  setStatus('동기화 요청 중…');
+  setHint('');
+  setChip('동기화 중', 'soft');
+
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      body: body,
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    });
+    const text = await res.text();
+    let j;
+    try {
+      j = JSON.parse(text);
+    } catch (_e) {
+      setChip('오류', 'err');
+      setStatus('응답이 JSON이 아님 (http ' + res.status + ')');
+      setHint(String(text).slice(0, 220));
+      return;
+    }
+    if (!j.ok) {
+      setChip('실패', 'err');
+      setStatus(String(j.error || 'ERROR') + (j.message ? ': ' + j.message : ''));
+      setHint(j.error === 'UNAUTHORIZED' ? '토큰·Property SOLPATH_DASHBOARD_TOKEN 확인' : '');
+      return;
+    }
+    setChip('완료', 'ok');
+    const d = j.data || {};
+    const m = d.members;
+    const p = d.products;
+    const o = d.orders;
+    setStatus(
+      '완료 — members ' +
+        (m && m.rows != null ? m.rows : '—') +
+        ' · products ' +
+        (p && p.rows != null ? p.rows : '—') +
+        ' · orders ' +
+        (o && o.orderRows != null ? o.orderRows : '—') +
+        ' (품목 ' +
+        (o && o.itemRows != null ? o.itemRows : '—') +
+        ')'
+    );
+    setHint('');
+  } catch (e) {
+    setChip('오류', 'err');
+    setStatus('요청 실패: ' + (e && e.message != null ? e.message : String(e)));
+    setHint('CORS·배포 URL·exec 경로는 docs/IMWEB_CORS.md·BACKEND_API.md');
+  } finally {
+    if (GAS_MODE.canSync) {
+      btnSync.disabled = false;
+    }
+  }
+}
+
 function wireSync() {
   if (!btnSync) {
     return;
@@ -64,20 +132,20 @@ function wireSync() {
   if (!GAS_MODE.canSync) {
     btnSync.disabled = true;
     if (actionNote) {
-      actionNote.textContent =
-        GAS_MODE.useMock
-          ? 'config.js에 GAS_BASE_URL을 넣고, 백엔드 연동 시 ENABLE_SYNC_ACTION = true'
-          : 'GAS self API(CORS+POST) 연동 후 ENABLE_SYNC_ACTION = true';
+      if (GAS_MODE.useMock) {
+        actionNote.textContent = 'GAS_BASE_URL + DASHBOARD_SYNC_API_TOKEN (GAS Property와 동일, 레포엔 토큰 커밋 금지)';
+      } else {
+        actionNote.textContent = 'DASHBOARD_SYNC_API_TOKEN — Script Property SOLPATH_DASHBOARD_TOKEN 과 같은 값';
+      }
     }
     return;
   }
   btnSync.disabled = false;
   if (actionNote) {
-    actionNote.textContent = '실행 시 백엔드가 순서·청크로 동기를 돌립니다(시간·쿼터에 유의).';
+    actionNote.textContent = 'Open API·unit·Sheets 마스터 준비 후(최대 ~6분). 실패 시 Executions·sync_log';
   }
-  btnSync.addEventListener('click', () => {
-    setStatus('요청 보내는 중… (백엔드 doPost/토큰 스펙 붙이면 이어짐)');
-    setHint('지금은 UI만 — API 스펙에 맞춰 fetch 를 연결하세요.');
+  btnSync.addEventListener('click', function onSync() {
+    postSyncOpenFull();
   });
 }
 
@@ -88,14 +156,21 @@ async function main() {
     return;
   }
   if (GAS_MODE.useMock) {
-    setChip('로컬 / 설정 없음', 'soft');
-    setStatus('대기 — js/config.js에 Web App exec URL(베이스)을 넣으면 "연결됨"으로 바꿀 수 있어요');
-    setHint('아임웹: iframe이 막히면 IMWEB_SNIPPET_INJECT.html(스크립트 직접). CORS·토큰은 docs/IMWEB_CORS.md');
+    setChip('로컬 / URL 없음', 'soft');
+    setStatus('대기 — config.js에 GAS Web App exec URL 이 필요합니다');
+    setHint('아임웹: IMWEB_SNIPPET_INJECT.html · CORS docs/IMWEB_CORS.md');
     wireSync();
     return;
   }
-  setChip('URL 설정됨 · 동기 API TBD', 'soft');
-  setStatus('GAS Web App 베이스가 config에 있습니다. 동기 `POST`는 백엔드 붙이면 이 버튼이 살아납니다.');
+  if (!GAS_MODE.canSync) {
+    setChip('토큰 없음', 'soft');
+    setStatus('GAS URL은 있음 — DASHBOARD_SYNC_API_TOKEN(=GAS SOLPATH_DASHBOARD_TOKEN)이 비어 있음');
+    setHint('공개 static 에 실토큰 넣지 말 것');
+    wireSync();
+    return;
+  }
+  setChip('연결됨', 'ok');
+  setStatus('전체 데이터 동기화: members → products(1p) → orders (백엔드 순서)');
   setHint('');
   wireSync();
 }

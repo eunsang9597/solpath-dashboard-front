@@ -1,15 +1,25 @@
 /**
- * 팀/공개 배포 URL만. (비밀·클라이언트 토큰은 커밋하지 말 것 — IMWEB_CORS.md)
+ * 공개 배포: 실제 토큰·URL은 **레포에 커밋하지 말고** (노출됨) 로컬/비공개 빌드에서만 주입.
+ * GAS: Script Property `SOLPATH_DASHBOARD_TOKEN` — 아래 `DASHBOARD_SYNC_API_TOKEN` 과 동일 값.
  */
 export const GAS_BASE_URL = '';
 
 /**
- * GAS `POST` 동기 API가 붙기 전엔 `false` 유지(버튼은 비활성).
- * 붙이면 `true` 로 두고 `fetch` 경로/바디는 백엔드 §2 맞출 것.
+ * Web App 배포 URL **전체** (예: `https://script.google.com/macros/s/…/usercode/exec` 형태).
+ * 끝이 `/exec`인지 팀이 쓰는 URL 그대로.
  */
-export const ENABLE_SYNC_ACTION = false;
+// export const GAS_BASE_URL = 'https://script.google.com/macros/s/XXXX/exec';
+
+/**
+ * 대시보드 `POST` `action`+`token` — `IMWEB_CORS.md` 참고(정적 토큰은 누구나 복제 가능, 운영은 내부·제한 URL 전제).
+ */
+export const DASHBOARD_SYNC_API_TOKEN = '';
 
 export const GAS_MODE = {
-  useMock: !GAS_BASE_URL,
-  canSync: Boolean(GAS_BASE_URL) && ENABLE_SYNC_ACTION,
+  get useMock() {
+    return !GAS_BASE_URL;
+  },
+  get canSync() {
+    return Boolean(String(GAS_BASE_URL).trim() && String(DASHBOARD_SYNC_API_TOKEN).trim());
+  }
 };
