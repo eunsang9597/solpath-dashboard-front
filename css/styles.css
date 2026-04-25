@@ -682,15 +682,32 @@ input.sp-confirm:disabled {
   flex-direction: column;
   align-items: flex-end;
   gap: 0.4rem;
-  max-width: min(100%, 24rem);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 #sp-pm-root .sp-pm-hero__ctas {
   display: flex;
+  flex-direction: row;
   flex-wrap: nowrap;
   align-items: center;
   justify-content: flex-end;
   gap: 0.5rem 0.65rem;
+  width: 100%;
+  max-width: 28rem;
+  box-sizing: border-box;
+}
+
+/* 임웹 등에서 button { width:100% } 가 들어오면 flex 한 줄이 깨짐 */
+#sp-pm-root .sp-pm-hero__ctas > .btn {
+  display: inline-flex;
+  flex: 0 0 auto;
+  width: auto !important;
+  min-width: 0;
+  max-width: none !important;
+  box-sizing: border-box;
+  white-space: nowrap;
 }
 
 #sp-pm-root .btn.sp-pm-apply {
