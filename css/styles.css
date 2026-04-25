@@ -99,6 +99,83 @@ code {
   gap: 1rem;
 }
 
+.sp-app-main {
+  position: relative;
+  min-height: 10rem;
+}
+
+/* 로딩 오버레이(동기 fetch 중) */
+.sp-overlay[hidden] {
+  display: none !important;
+}
+
+.sp-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(248, 250, 252, 0.82);
+  backdrop-filter: blur(4px);
+  border-radius: var(--radius);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+}
+
+.sp-overlay-box {
+  text-align: center;
+  padding: 1.25rem;
+}
+
+.sp-overlay-text {
+  margin: 0.75rem 0 0;
+  font-size: 0.88rem;
+  color: #3d4a5c;
+  font-weight: 500;
+}
+
+.sp-spinner {
+  width: 36px;
+  height: 36px;
+  margin: 0 auto;
+  border: 3px solid var(--line);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: sp-spin 0.7s linear infinite;
+}
+
+@keyframes sp-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.sp-success-actions {
+  margin-top: 0.85rem;
+  padding-top: 0.75rem;
+  border-top: 1px dashed var(--line);
+}
+
+.sp-success-actions[hidden] {
+  display: none !important;
+}
+
+.btn--secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  color: var(--accent);
+  border: 1px solid rgba(11, 92, 173, 0.35);
+  text-decoration: none;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
+}
+
+.btn--secondary:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
 .panel {
   background: var(--card);
   border: 1px solid var(--line);

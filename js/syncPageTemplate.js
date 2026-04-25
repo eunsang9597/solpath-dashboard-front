@@ -16,7 +16,13 @@ export const SYNC_PAGE_SHELL_HTML = `<div class="app-shell">
         </p>
       </header>
 
-      <main class="app-main">
+      <main class="app-main sp-app-main">
+        <div class="sp-overlay" id="sp-loadingOverlay" hidden aria-hidden="true">
+          <div class="sp-overlay-box">
+            <div class="sp-spinner" role="status" aria-label="로딩 중"></div>
+            <p class="sp-overlay-text">백엔드 응답을 기다리는 중…</p>
+          </div>
+        </div>
         <section class="panel panel--hero" aria-labelledby="sp-sync-title">
           <div class="panel__head">
             <h2 id="sp-sync-title">데이터 동기화</h2>
@@ -43,6 +49,16 @@ export const SYNC_PAGE_SHELL_HTML = `<div class="app-shell">
           <h3 class="panel__sub">이번 작업</h3>
           <p class="mono-line" id="sp-statusLine">대기 중</p>
           <p class="hint" id="sp-hintLine"></p>
+          <div class="sp-success-actions" id="sp-successActions" hidden>
+            <a
+              class="btn btn--secondary"
+              id="sp-sheetsLink"
+              href="#"
+              target="_blank"
+              rel="noopener noreferrer"
+              hidden
+            >원천 DB 시트 열기 · 데이터 확인</a>
+          </div>
         </section>
       </main>
 

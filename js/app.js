@@ -9,17 +9,17 @@ function getMount() {
 }
 
 function ensureShell() {
-  const mount = getMount();
-  if (!mount) {
+  const m = getMount();
+  if (!m) {
     return null;
   }
-  if (mount.getAttribute('data-solpath-autofill') === '0') {
-    return mount;
+  if (m.getAttribute('data-solpath-autofill') === '0') {
+    return m;
   }
-  if (!mount.querySelector('.app-shell')) {
-    mount.innerHTML = SYNC_PAGE_SHELL_HTML;
+  if (!m.querySelector('.app-shell')) {
+    m.innerHTML = SYNC_PAGE_SHELL_HTML;
   }
-  return mount;
+  return m;
 }
 
 const mount = ensureShell();
@@ -30,6 +30,9 @@ const hintLine = /** @type {HTMLElement | null} */ (scope.querySelector('#sp-hin
 const envChip = /** @type {HTMLElement | null} */ (scope.querySelector('#sp-envChip'));
 const btnSync = /** @type {HTMLButtonElement | null} */ (scope.querySelector('#sp-btnSync'));
 const actionNote = /** @type {HTMLElement | null} */ (scope.querySelector('#sp-actionNote'));
+const loadingOverlay = /** @type {HTMLElement | null} */ (scope.querySelector('#sp-loadingOverlay'));
+const successActions = /** @type {HTMLElement | null} */ (scope.querySelector('#sp-successActions'));
+const sheetsLink = /** @type {HTMLAnchorElement | null} */ (scope.querySelector('#sp-sheetsLink'));
 
 function setChip(text, kind) {
   if (!envChip) {
@@ -59,7 +62,59 @@ function setHint(text) {
 }
 
 /**
- * GAS `HttpOpenSync.js` `doPost` — `action=syncOpenFull` + `token`
+ * @param {boolean} on
+ */
+function setLoading(on) {
+  if (loadingOverlay) {
+    if (on) {
+      loadingOverlay.removeAttribute('hidden');
+      loadingOverlay.setAttribute('aria-hidden', 'false');
+    } else {
+      loadingOverlay.setAttribute('hidden', '');
+      loadingOverlay.setAttribute('aria-hidden', 'true');
+    }
+  }
+  if (btnSync) {
+    if (on) {
+      btnSync.setAttribute('aria-busy', 'true');
+    } else {
+      btnSync.removeAttribute('aria-busy');
+    }
+  }
+}
+
+/**
+ * @param {string|undefined} url
+ */
+function showSheetsButton(url) {
+  if (!sheetsLink || !successActions) {
+    return;
+  }
+  const u = String(url != null ? url : '').trim();
+  if (u.length > 0 && (u.indexOf('http://') === 0 || u.indexOf('https://') === 0)) {
+    sheetsLink.href = u;
+    sheetsLink.removeAttribute('hidden');
+    successActions.removeAttribute('hidden');
+  } else {
+    sheetsLink.setAttribute('hidden', '');
+    sheetsLink.href = '#';
+    successActions.setAttribute('hidden', '');
+  }
+}
+
+function hideSheetsButton() {
+  if (sheetsLink) {
+    sheetsLink.setAttribute('hidden', '');
+    sheetsLink.removeAttribute('href');
+    sheetsLink.setAttribute('href', '#');
+  }
+  if (successActions) {
+    successActions.setAttribute('hidden', '');
+  }
+}
+
+/**
+ * GAS `HttpOpenSync` `doPost` — `action=syncOpenFull` + `token`
  */
 async function postSyncOpenFull() {
   const url = String(GAS_BASE_URL).trim();
@@ -70,10 +125,12 @@ async function postSyncOpenFull() {
   body.set('action', syncAction);
   body.set('token', String(DASHBOARD_SYNC_API_TOKEN).trim());
 
+  hideSheetsButton();
+  setLoading(true);
   btnSync.disabled = true;
-  setStatus('동기화 요청 중…');
+  setStatus('요청을 보냈습니다. 응답을 기다리는 중… (동기는 수 분 걸릴 수 있음)');
   setHint('');
-  setChip('동기화 중', 'soft');
+  setChip('처리 중', 'soft');
 
   try {
     const res = await fetch(url, {
@@ -87,16 +144,27 @@ async function postSyncOpenFull() {
       j = JSON.parse(text);
     } catch (_e) {
       setChip('오류', 'err');
-      setStatus('응답이 JSON이 아님 (http ' + res.status + ')');
+      setStatus('응답이 JSON이 아닙니다 (http ' + res.status + ').');
       setHint(String(text).slice(0, 220));
       return;
     }
     if (!j.ok) {
       setChip('실패', 'err');
-      setStatus(String(j.error || 'ERROR') + (j.message ? ': ' + j.message : ''));
-      setHint(j.error === 'UNAUTHORIZED' ? '토큰·Property SOLPATH_DASHBOARD_TOKEN 확인' : '');
+      const err = j.error != null ? String(j.error) : 'ERROR';
+      const msg = j.message != null ? String(j.message) : '';
+      if (err === 'UNAUTHORIZED') {
+        setStatus('인증 실패 — 토큰과 GAS Property SOLPATH_DASHBOARD_TOKEN 을 맞추세요.');
+      } else if (err === 'SYNC_FAILED') {
+        setStatus('동기화 중 오류: ' + (msg || '알 수 없음'));
+      } else {
+        setStatus(err + (msg ? ': ' + msg : ''));
+      }
+      setHint(
+        err === 'UNAUTHORIZED' ? 'config.js DASHBOARD_SYNC_API_TOKEN 확인' : 'GAS Executions·sync_log 시트를 확인하세요'
+      );
       return;
     }
+
     setChip('완료', 'ok');
     const d = j.data || {};
     const m = d.members;
@@ -105,20 +173,30 @@ async function postSyncOpenFull() {
     setStatus(
       '완료 — members ' +
         (m && m.rows != null ? m.rows : '—') +
-        ' · products ' +
+        '행 · products ' +
         (p && p.rows != null ? p.rows : '—') +
-        ' · orders ' +
+        '행 · orders ' +
         (o && o.orderRows != null ? o.orderRows : '—') +
-        ' (품목 ' +
+        '건 (품목 행 ' +
         (o && o.itemRows != null ? o.itemRows : '—') +
         ')'
     );
-    setHint('');
+    const sheetUrl = d.spreadsheetUrl != null ? String(d.spreadsheetUrl).trim() : '';
+    if (sheetUrl) {
+      showSheetsButton(sheetUrl);
+      setHint('아래 버튼으로 원천 DB 시트를 열어 members · orders · order_items 를 확인하세요.');
+    } else {
+      hideSheetsButton();
+      setHint(
+        '동기는 끝났지만 시트 URL이 없습니다. GAS에 SHEETS_MASTER_ID(또는 dbSetupMasterDatabase) 를 설정하세요.'
+      );
+    }
   } catch (e) {
     setChip('오류', 'err');
-    setStatus('요청 실패: ' + (e && e.message != null ? e.message : String(e)));
-    setHint('CORS·배포 URL·exec 경로는 docs/IMWEB_CORS.md·BACKEND_API.md');
+    setStatus('네트워크 오류: ' + (e && e.message != null ? e.message : String(e)));
+    setHint('CORS, 배포 URL, Web App "액세스 권한"·docs/IMWEB_CORS.md');
   } finally {
+    setLoading(false);
     if (GAS_MODE.canSync) {
       btnSync.disabled = false;
     }
@@ -155,6 +233,7 @@ async function main() {
     setStatus('#solpath-root 없음');
     return;
   }
+  hideSheetsButton();
   if (GAS_MODE.useMock) {
     setChip('로컬 / URL 없음', 'soft');
     setStatus('대기 — config.js에 GAS Web App exec URL 이 필요합니다');
