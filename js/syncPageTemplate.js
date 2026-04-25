@@ -1,7 +1,7 @@
 /**
  * id 접두 `sp-`
  */
-export const SYNC_PAGE_SHELL_HTML = `<div class="app-shell">
+export const SYNC_PAGE_SHELL_HTML = `<div class="app-shell app-shell--v2">
       <header class="app-header">
         <div class="brand">
           <span class="brand-mark" aria-hidden="true"></span>
