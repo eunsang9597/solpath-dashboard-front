@@ -174,6 +174,47 @@ code {
   display: none !important;
 }
 
+/* 실행 후 한 줄·시트 링크 (따로 떨어진 '결과' 패널 대신) */
+.sp-feedback[hidden] {
+  display: none !important;
+}
+
+.sp-feedback {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px dashed var(--line);
+}
+
+.sp-feedback__main {
+  font-size: 0.9rem;
+  line-height: 1.45;
+  margin: 0 0 0.35rem;
+  color: #222830;
+  font-weight: 500;
+}
+
+.sp-feedback__main:empty {
+  display: none;
+  margin: 0;
+}
+
+.sp-feedback__sub {
+  font-size: 0.8rem;
+  line-height: 1.45;
+  margin: 0;
+  color: var(--muted);
+}
+
+.sp-feedback__sub:empty {
+  display: none;
+}
+
+.sp-feedback .sp-success-actions {
+  margin-top: 0.55rem;
+  padding-top: 0;
+  border-top: none;
+}
+
 .btn--secondary {
   display: inline-flex;
   align-items: center;

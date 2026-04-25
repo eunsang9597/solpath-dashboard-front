@@ -1,7 +1,7 @@
 /**
  * id 접두 `sp-`
  */
-export const SYNC_PAGE_SHELL_HTML = `<div class="app-shell app-shell--v5">
+export const SYNC_PAGE_SHELL_HTML = `<div class="app-shell app-shell--v6">
       <header class="app-header">
         <div class="brand">
           <span class="brand-mark" aria-hidden="true"></span>
@@ -40,22 +40,20 @@ export const SYNC_PAGE_SHELL_HTML = `<div class="app-shell app-shell--v5">
               <button type="button" class="btn btn--primary" id="sp-btnSync" disabled>전체 데이터 동기화</button>
             </div>
             <p class="actions-note" id="sp-actionNote">쇼핑몰과 이 화면이 만나려면, 맨 위에 받아 둔 연결 주소가 있어야 한다.</p>
-          </div>
-        </section>
-
-        <section class="panel panel--result" aria-label="이번에 한 일">
-          <h3 class="panel__sub">이번에 한 일</h3>
-          <p class="mono-line" id="sp-statusLine">—</p>
-          <p class="hint" id="sp-hintLine"></p>
-          <div class="sp-success-actions" id="sp-successActions" hidden>
-            <a
-              class="btn btn--secondary"
-              id="sp-sheetsLink"
-              href="#"
-              target="_blank"
-              rel="noopener noreferrer"
-              hidden
-            >집계 시트 열기</a>
+            <div class="sp-feedback" id="sp-feedback" hidden>
+              <p class="sp-feedback__main" id="sp-statusLine"></p>
+              <p class="sp-feedback__sub" id="sp-hintLine"></p>
+              <div class="sp-success-actions" id="sp-successActions" hidden>
+                <a
+                  class="btn btn--secondary"
+                  id="sp-sheetsLink"
+                  href="#"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  hidden
+                >집계 시트 열기</a>
+              </div>
+            </div>
           </div>
         </section>
       </main>

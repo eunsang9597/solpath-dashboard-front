@@ -18,7 +18,7 @@ function ensureShell() {
     return m;
   }
   // 아임웹에 예전에 붙인 정적 HTML(구 .app-shell)이 있으면 그대로 두지 않고 v2로 갈아탐
-  if (!m.querySelector('.app-shell--v5')) {
+  if (!m.querySelector('.app-shell--v6')) {
     m.innerHTML = SYNC_PAGE_SHELL_HTML;
   }
   return m;
@@ -36,6 +36,7 @@ const actionNote = /** @type {HTMLElement | null} */ (scope.querySelector('#sp-a
 const loadingOverlay = /** @type {HTMLElement | null} */ (scope.querySelector('#sp-loadingOverlay'));
 const successActions = /** @type {HTMLElement | null} */ (scope.querySelector('#sp-successActions'));
 const sheetsLink = /** @type {HTMLAnchorElement | null} */ (scope.querySelector('#sp-sheetsLink'));
+const feedback = /** @type {HTMLElement | null} */ (scope.querySelector('#sp-feedback'));
 
 let syncBusy = false;
 
@@ -54,16 +55,34 @@ function setChip(text, kind) {
   }
 }
 
+function syncFeedbackBlock_() {
+  if (!feedback) {
+    return;
+  }
+  const tMain = statusLine && statusLine.textContent.trim();
+  const tSub = hintLine && hintLine.textContent.trim();
+  const hasLink = Boolean(
+    successActions && !successActions.hasAttribute('hidden') && sheetsLink && !sheetsLink.hasAttribute('hidden')
+  );
+  if (tMain || tSub || hasLink) {
+    feedback.removeAttribute('hidden');
+  } else {
+    feedback.setAttribute('hidden', '');
+  }
+}
+
 function setStatus(text) {
   if (statusLine) {
     statusLine.textContent = text;
   }
+  syncFeedbackBlock_();
 }
 
 function setHint(text) {
   if (hintLine) {
     hintLine.textContent = text;
   }
+  syncFeedbackBlock_();
 }
 
 /**
@@ -126,6 +145,7 @@ function showSheetsButton(url) {
     sheetsLink.href = '#';
     successActions.setAttribute('hidden', '');
   }
+  syncFeedbackBlock_();
 }
 
 function hideSheetsButton() {
@@ -137,6 +157,7 @@ function hideSheetsButton() {
   if (successActions) {
     successActions.setAttribute('hidden', '');
   }
+  syncFeedbackBlock_();
 }
 
 async function postSyncOpenFull() {
@@ -203,7 +224,7 @@ async function postSyncOpenFull() {
     const sheetUrl = d.spreadsheetUrl != null ? String(d.spreadsheetUrl).trim() : '';
     if (sheetUrl) {
       showSheetsButton(sheetUrl);
-      setHint('아래 [집계 시트 열기]로 열리는 시트를 확인하세요.');
+      setHint('');
     } else {
       hideSheetsButton();
       setHint('시트로 가는 링크를 못 받았습니다. 캡처 후 받은 연락처로 보내 주세요.');
@@ -260,14 +281,14 @@ async function main() {
   hideSheetsButton();
   if (GAS_MODE.useMock) {
     setChip('미연결', 'soft');
-    setStatus('쇼핑몰과 잇는 주소가 아직 없습니다.');
-    setHint('맨 위에 받은 연결 주소를 넣었는지, 이 HTML을 통째로 붙였는지 확인하세요.');
+    setStatus('쇼핑몰과 잇는 주소가 아직 없습니다. 맨 위에 받은 주소·이 HTML 통째 붙이기를 확인하세요.');
+    setHint('');
     wireSync();
     return;
   }
   setChip('연결됨', 'ok');
-  setStatus('아래에 ' + SYNC_CONFIRM + ' 를 쓰고 [전체 데이터 동기화]를 누르면, 쇼핑몰 → 시트로 옮깁니다.');
-  setHint('시트에는 회원 → 상품 → 주문 순으로 한 번에 쌓입니다.');
+  setStatus('');
+  setHint('');
   wireSync();
 }
 
