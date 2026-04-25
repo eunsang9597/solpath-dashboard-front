@@ -36,11 +36,11 @@ export const SYNC_PAGE_SHELL_HTML = `<div class="app-shell app-shell--v9">
           <div class="sp-intro-card sp-intro-card--an" id="sp-introAn" hidden>
             <p class="sp-intro-title">매출·건수 집계 · 사용 안내</p>
             <ul class="sp-intro-list">
-              <li>팀 흐름: <strong>집계(마스터)</strong>에 원천·숫자, <strong>운영(분류)</strong>에 품목 분류, <strong>집계·분석</strong> 전용 구글 시트(이 탭)에 <strong>매출·건수 목표</strong> 등 리포트용 롱 데이터를 둡니다. 파일이 다르므로, 상단 <strong>집계·분석 시트 열기</strong>로 구분해 둡니다.</li>
-              <li>탭 안 <strong>「kpi_매출건수_목표」</strong> 시트(탭)가 목표의 저장 위치입니다. <strong>시트에 반영</strong>을 누르면 대시보드에 적은 줄이 그대로 시트에 덮어쓰기됩니다(시트 ↔ 화면 동기).</li>
-              <li><strong>범위</strong>가 <strong>대분류</strong>이면 키는 <code>solpass</code>·<code>unmapped</code> 등 내부 분류 키(영문)를, <strong>상품</strong>이면 <strong>상품 번호</strong>를 넣습니다. <strong>월</strong>이 <strong>0</strong>이면 그 <strong>연</strong>도 기준의 한 줄(연간) 목표로 둡니다.</li>
-              <li>아래 <strong>매출</strong> / <strong>건수</strong>는 같은 표에서 강조만 바꾼 뷰입니다(차트·집계는 이후 붙이기 쉬운 뼈대). 필터(연·월)는 화면에서만 걸고, 시트에 있는 <strong>전체 행</strong>을 불러옵니다.</li>
-              <li><strong>전부 초기화</strong>는 목표·(예약)일별 집계 캐시 본문을 모두 비웁니다. 팀에 공지한 뒤에만 누릅니다.</li>
+              <li>팀 흐름: <strong>집계(마스터)</strong>에 원천·숫자, <strong>운영(분류)</strong>에 품목 분류, <strong>집계·분석</strong> 전용 구글 시트(이 탭)에 <strong>매출·건수 목표</strong> 등을 둡니다. 파일이 다르므로, 상단 <strong>집계·분석 시트 열기</strong>로 열 수 있습니다.</li>
+              <li>시트를 열면 <strong>매출·건수 목표</strong>라는 이름의 탭에 목표가 저장됩니다. 여기서 <strong>시트에 반영</strong>을 누르면, 화면에 적어 둔 줄이 그대로 시트에 올라갑니다.</li>
+              <li><strong>범위</strong>를 <strong>대분류</strong>로 두면, <strong>상품 항목 분류</strong>에서 쓰는 상품군(솔패스, 미분류, 솔루틴 등)에 맞게 적습니다. <strong>상품</strong>이면 <strong>상품 번호</strong>를 넣습니다. <strong>월</strong>이 <strong>0(연간)</strong>이면 그 해 한 줄로 잡는 연간 목표로 둡니다.</li>
+              <li>아래 <strong>매출</strong> / <strong>건수</strong>는 같은 표에서 보기만 바꿉니다. 위에서 고른 <strong>연·월</strong>은 이 화면에 보이는 행만 걸러 냅니다.</li>
+              <li><strong>전부 초기화</strong>는 여기에 쌓인 목표와, 나중에 쓰는 일 단위 캐시를 비웁니다. 팀에 공지한 뒤에만 누릅니다.</li>
             </ul>
           </div>
         </div>
@@ -215,7 +215,7 @@ export const SYNC_PAGE_SHELL_HTML = `<div class="app-shell app-shell--v9">
             </div>
             <div class="sp-confirm-block sp-an-block" id="sp-an-block">
               <p class="sp-confirm-instruct" id="sp-an-instruct">
-                <strong>매출·건수 목표</strong>는 <strong>집계·분석</strong> 전용 스프레드시트의 <strong>「kpi_매출건수_목표」</strong> 탭에 저장합니다. Drive 위치는 집계(마스터)·운영(분류)과 <strong>다른 파일</strong>입니다. 처음이면 <strong>집계 시트 준비</strong>로 만듭니다.
+                <strong>매출·건수 목표</strong>는 <strong>집계·분석</strong>만을 위한 구글 시트에 있습니다. 맨 위쪽 <strong>매출·건수 목표</strong> 탭에 저장됩니다. 이 파일은 집계(마스터)·운영(분류)과 <strong>다른 파일</strong>입니다. 처음 쓰면 <strong>집계 시트 준비</strong>로 만듭니다.
               </p>
               <p class="sp-pm__hint" id="sp-an-hint" hidden></p>
               <div class="sp-pm-init" id="sp-an-init" hidden>
@@ -246,7 +246,7 @@ export const SYNC_PAGE_SHELL_HTML = `<div class="app-shell app-shell--v9">
                           <th>연</th>
                           <th>월</th>
                           <th>범위</th>
-                          <th>키</th>
+                          <th>적는 값</th>
                           <th class="sp-an-table__em-sales">매출목표(원)</th>
                           <th class="sp-an-table__em-count">건수목표</th>
                           <th>비고</th>
@@ -270,7 +270,7 @@ export const SYNC_PAGE_SHELL_HTML = `<div class="app-shell app-shell--v9">
                         <option value="product">상품</option>
                       </select>
                     </label>
-                    <label>키 <input type="text" class="sp-confirm" id="sp-an-inKey" placeholder="solpass 또는 상품번호" spellcheck="false" /></label>
+                    <label>적는 값 <input type="text" class="sp-confirm" id="sp-an-inKey" placeholder="예: 솔패스, 미분류 또는 상품 번호" spellcheck="false" /></label>
                     <label>매출(원) <input type="number" class="sp-confirm" id="sp-an-inAmt" min="0" step="1" /></label>
                     <label>건수 <input type="number" class="sp-confirm" id="sp-an-inCnt" min="0" step="1" /></label>
                   </div>

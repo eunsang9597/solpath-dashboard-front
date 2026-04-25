@@ -5,6 +5,31 @@ import { GAS_BASE_URL, GAS_MODE } from './config.js';
 
 const SCOPE_LABEL = { category: '대분류', product: '상품' };
 
+/** 시트·API용 영문 키 → 표에만 한글 (저장 값은 그대로) */
+const AN_CATEGORY_KEY_LABEL = {
+  unmapped: '미분류',
+  solpass: '솔패스',
+  solutine: '솔루틴',
+  challenge: '챌린지',
+  textbook: '교재',
+  jasoseo: '자소서'
+};
+
+/**
+ * @param {string} scope
+ * @param {string} key
+ */
+function displayScopeValueForTable_(scope, key) {
+  const k = String(key != null ? key : '').trim();
+  if (!k.length) {
+    return '—';
+  }
+  if (String(scope) === 'product') {
+    return '상품 번호 ' + k;
+  }
+  return AN_CATEGORY_KEY_LABEL[k] != null ? AN_CATEGORY_KEY_LABEL[k] : k;
+}
+
 /**
  * GAS JSONP (쿼리 파라미터)
  * @param {string} baseUrl
@@ -105,13 +130,19 @@ function errMsg_(r) {
   if (!r) {
     return '응답이 없습니다.';
   }
+  var msg = '';
   if (r.error && typeof r.error === 'object' && r.error.message) {
-    return String(r.error.message);
+    msg = String(r.error.message);
+  } else if (r.message) {
+    msg = String(r.message);
   }
-  if (r.message) {
-    return String(r.message);
+  if (!msg) {
+    return '';
   }
-  return '';
+  if (msg.indexOf('원천 DB') >= 0 || msg.indexOf('SHEETS_MASTER') >= 0 || msg.indexOf('Drive') >= 0 && msg.indexOf('부모') >= 0) {
+    return '집계용 구글 시트(원본)를 찾지 못했습니다. 마스터 파일이 열리는지 확인한 뒤 다시 시도합니다.';
+  }
+  return msg;
 }
 
 /**
@@ -385,9 +416,9 @@ export function initAnalytics(mount) {
         esc(r.month) +
         '</td><td>' +
         esc(SCOPE_LABEL[sc] || sc) +
-        '</td><td><code>' +
-        esc(sk) +
-        '</code></td><td class="sp-an-table__em-sales">' +
+        '</td><td>' +
+        esc(displayScopeValueForTable_(sc, sk)) +
+        '</td><td class="sp-an-table__em-sales">' +
         esc(r.targetAmount) +
         '</td><td class="sp-an-table__em-count">' +
         esc(r.targetCount) +
@@ -636,7 +667,7 @@ export function initAnalytics(mount) {
         return;
       }
       const ok = window.confirm(
-        '「kpi_매출건수_목표」와 (예약)일별 캐시를 모두 비웁니다. 되돌릴 수 없습니다. 정말 진행할까요?'
+        '여기에 적어 둔 목표·일 단위 캐시를 모두 비웁니다. 되돌릴 수 없습니다. 정말 진행할까요?'
       );
       if (!ok) {
         return;
