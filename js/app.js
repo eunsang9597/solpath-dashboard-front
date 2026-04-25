@@ -1,5 +1,6 @@
 import { GAS_MODE, GAS_BASE_URL } from './config.js';
 import { SYNC_PAGE_SHELL_HTML } from './syncPageTemplate.js';
+import { initProductMapping } from './productMapping.js';
 
 const MOUNT_ID = 'solpath-root';
 const syncAction = 'syncOpenFull';
@@ -44,38 +45,38 @@ function wireTabs_() {
     return;
   }
   const tSync = mount.querySelector('#sp-tab-sync');
-  const tMore = mount.querySelector('#sp-tab-more');
+  const tPm = mount.querySelector('#sp-tab-pm');
   const pSync = mount.querySelector('#sp-panel-sync');
-  const pMore = mount.querySelector('#sp-panel-more');
-  if (!tSync || !tMore || !pSync || !pMore) {
+  const pPm = mount.querySelector('#sp-panel-pm');
+  if (!tSync || !tPm || !pSync || !pPm) {
     return;
   }
   function activateSync() {
     tSync.classList.add('is-active');
     tSync.setAttribute('aria-selected', 'true');
     tSync.tabIndex = 0;
-    tMore.classList.remove('is-active');
-    tMore.setAttribute('aria-selected', 'false');
-    tMore.tabIndex = -1;
+    tPm.classList.remove('is-active');
+    tPm.setAttribute('aria-selected', 'false');
+    tPm.tabIndex = -1;
     pSync.classList.add('is-active');
     pSync.removeAttribute('hidden');
-    pMore.classList.remove('is-active');
-    pMore.setAttribute('hidden', '');
+    pPm.classList.remove('is-active');
+    pPm.setAttribute('hidden', '');
   }
-  function activateMore() {
-    tMore.classList.add('is-active');
-    tMore.setAttribute('aria-selected', 'true');
-    tMore.tabIndex = 0;
+  function activatePm() {
+    tPm.classList.add('is-active');
+    tPm.setAttribute('aria-selected', 'true');
+    tPm.tabIndex = 0;
     tSync.classList.remove('is-active');
     tSync.setAttribute('aria-selected', 'false');
     tSync.tabIndex = -1;
-    pMore.classList.add('is-active');
-    pMore.removeAttribute('hidden');
+    pPm.classList.add('is-active');
+    pPm.removeAttribute('hidden');
     pSync.classList.remove('is-active');
     pSync.setAttribute('hidden', '');
   }
   tSync.addEventListener('click', activateSync);
-  tMore.addEventListener('click', activateMore);
+  tPm.addEventListener('click', activatePm);
 }
 
 function setChip(text, kind) {
@@ -353,6 +354,7 @@ async function main() {
     return;
   }
   wireTabs_();
+  initProductMapping(mount);
   hideSheetsButton();
   if (GAS_MODE.useMock) {
     setChip('미연결', 'soft');

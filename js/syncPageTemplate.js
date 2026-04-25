@@ -36,12 +36,12 @@ export const SYNC_PAGE_SHELL_HTML = `<div class="app-shell app-shell--v9">
           <button
             type="button"
             class="sp-tabs__btn"
-            id="sp-tab-more"
+            id="sp-tab-pm"
             role="tab"
             aria-selected="false"
-            aria-controls="sp-panel-more"
+            aria-controls="sp-panel-pm"
             tabindex="-1"
-          >추가 화면</button>
+          >상품 항목 분류</button>
         </nav>
 
         <main class="app-main sp-app-main" id="sp-main">
@@ -92,13 +92,33 @@ export const SYNC_PAGE_SHELL_HTML = `<div class="app-shell app-shell--v9">
 
         <section
           class="sp-tab-panel"
-          id="sp-panel-more"
+          id="sp-panel-pm"
           role="tabpanel"
-          aria-labelledby="sp-tab-more"
+          aria-labelledby="sp-tab-pm"
           hidden
         >
-          <div class="panel panel--sub">
-            <p class="sp-sub-placeholder">이 탭에 연결될 화면은 이후에 추가됩니다.</p>
+          <div class="sp-pm" id="sp-pm-root">
+            <div class="sp-pm-hero" id="sp-pm-hero">
+              <h2 class="sp-panel-eyebrow" id="sp-pm-eyebrow">상품 항목 분류</h2>
+              <div class="sp-pm-hero__actions" id="sp-pm-heroActions">
+                <button type="button" class="btn btn--primary" id="sp-pm-apply" disabled>수정하기</button>
+              </div>
+            </div>
+            <p class="sp-pm__hint" id="sp-pm-hint" hidden></p>
+            <div class="sp-pm-init" id="sp-pm-init" hidden>
+              <p>원천 DB의 상품과 연결해 내부 대분류(솔패스·솔루틴·챌린지·교재)를 씁니다. 먼저 운영용 스프레드시트를 만듭니다.</p>
+              <button type="button" class="btn btn--primary" id="sp-pm-btnInit">상품 불러오기</button>
+            </div>
+            <div class="sp-pm-filters" id="sp-pm-filters" hidden>
+              <label class="sp-pm-filters__s"><span class="sp-pm-filters__lbl">검색</span>
+                <input type="search" class="sp-pm__search" id="sp-pm-search" placeholder="상품명·번호" autocomplete="off" />
+              </label>
+              <label class="sp-pm-filters__c"><input type="checkbox" id="sp-pm-onlyUnmapped" />
+                <span>미분류만</span>
+              </label>
+            </div>
+            <div class="sp-pm__loading" id="sp-pm-listLoading" hidden>불러오는 중</div>
+            <div class="sp-pm-sections" id="sp-pm-sections" hidden></div>
           </div>
         </section>
         </div>
