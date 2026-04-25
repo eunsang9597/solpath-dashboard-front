@@ -687,7 +687,7 @@ input.sp-confirm:disabled {
 
 #sp-pm-root .sp-pm-hero__ctas {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   justify-content: flex-end;
   gap: 0.5rem 0.65rem;
