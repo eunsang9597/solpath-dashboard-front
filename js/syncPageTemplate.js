@@ -6,7 +6,7 @@ export const SYNC_PAGE_SHELL_HTML = `<div class="app-shell app-shell--v9">
         <div class="brand">
           <span class="brand-mark" aria-hidden="true"></span>
           <div>
-            <h1>솔패스 대시보드</h1>
+            <h1>솔루션편입 대시보드</h1>
           </div>
         </div>
         <div class="sp-intro-wrap">
