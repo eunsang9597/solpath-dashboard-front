@@ -17,7 +17,7 @@ function ensureShell() {
   if (m.getAttribute('data-solpath-autofill') === '0') {
     return m;
   }
-  if (!m.querySelector('.app-shell--v6')) {
+  if (!m.querySelector('.app-shell--v7')) {
     m.innerHTML = SYNC_PAGE_SHELL_HTML;
   }
   return m;
@@ -171,9 +171,9 @@ async function postSyncOpenFull() {
   refreshSyncButtonState();
   hideSheetsButton();
   setLoading(true);
-  setStatus('쇼핑몰에서 읽어 온 뒤 시트에 쓰는 중입니다. 끝날 때까지 수 분이 걸릴 수 있습니다.');
+  setStatus('쇼핑몰 데이터를 읽어 집계 시트에 반영하는 중입니다. 완료까지 수 분이 걸릴 수 있습니다.');
   setHint('');
-  setChip('진행', 'soft');
+  setChip('처리', 'soft');
 
   try {
     const res = await fetch(url, {
@@ -187,8 +187,8 @@ async function postSyncOpenFull() {
       j = JSON.parse(text);
     } catch (_e) {
       setChip('오류', 'err');
-      setStatus('끝나는 응답이 아닙니다. 잠시 뒤 다시 누르거나, 이 화면을 캡처해 보내 주세요.');
-      setHint('(' + String(text).slice(0, 100) + '…)');
+      setStatus('서버 응답을 확인할 수 없습니다. 잠시 후 [실행]을 다시 누릅니다.');
+      setHint('');
       return;
     }
     if (!j.ok) {
@@ -196,11 +196,11 @@ async function postSyncOpenFull() {
       const err = j.error != null ? String(j.error) : 'ERROR';
       const msg = j.message != null ? String(j.message) : '';
       if (err === 'SYNC_FAILED') {
-        setStatus('중간에 멈췄습니다. ' + (msg || '시트에 이유가 적혀 있을 수 있습니다.'));
+        setStatus('처리가 완료되지 않았습니다. ' + (msg || '집계 시트에 남는 내용을 확인한 뒤 사내 절차에 따릅니다.'));
       } else {
-        setStatus('끝까지 가지 못했습니다. ' + (msg || ''));
+        setStatus('처리를 마치지 못했습니다. ' + (msg || '동일 증상이면 사내 절차에 따라 문의합니다.'));
       }
-      setHint('이 화면을 캡처해 보내 주세요.');
+      setHint('');
       return;
     }
 
@@ -210,15 +210,15 @@ async function postSyncOpenFull() {
     const p = d.products;
     const o = d.orders;
     setStatus(
-      '끝났습니다. 시트에 회원 ' +
+      '처리가 완료되었습니다. 반영 건수 — 회원 ' +
         (m && m.rows != null ? m.rows : '—') +
-        '줄, 상품 ' +
+        ' · 상품 ' +
         (p && p.rows != null ? p.rows : '—') +
-        '줄, 주문 ' +
+        ' · 주문 ' +
         (o && o.orderRows != null ? o.orderRows : '—') +
-        '건(안의 품목 줄 ' +
+        ' · 품목 ' +
         (o && o.itemRows != null ? o.itemRows : '—') +
-        '줄)이 들어갔습니다.'
+        '. [집계 시트 열기]로 확인합니다.'
     );
     const sheetUrl = d.spreadsheetUrl != null ? String(d.spreadsheetUrl).trim() : '';
     if (sheetUrl) {
@@ -226,12 +226,12 @@ async function postSyncOpenFull() {
       setHint('');
     } else {
       hideSheetsButton();
-      setHint('시트로 가는 링크를 못 받았습니다. 캡처 후 받은 연락처로 보내 주세요.');
+      setHint('집계 시트 바로가기 링크를 받지 못했습니다. 사내에 공지된 절차에 따라 문의합니다.');
     }
   } catch (e) {
     setChip('오류', 'err');
-    setStatus('쇼핑몰/시트 쪽에 닿지 못했습니다. ' + (e && e.message != null ? e.message : String(e)));
-    setHint('인터넷·맨 위 연결 주소를 본 뒤, 이 화면을 캡처해 보내 주세요.');
+    setStatus('요청이 완료되지 않았습니다. 네트워크·접속 환경을 확인한 뒤 [실행]을 다시 누릅니다.');
+    setHint('');
   } finally {
     syncBusy = false;
     setLoading(false);
@@ -257,14 +257,14 @@ function wireSync() {
     }
     if (actionNote) {
       actionNote.textContent =
-        '쇼핑몰과 붙이려면 맨 위에 받은 연결 주소가 있어야 합니다. 이 페이지에 맨 먼저 붙이는 그 한 줄이면 됩니다.';
+        '이 화면이 동작하려면 사이트에 넣는 스크립트 맨 앞부분에, 안내된 연결 주소가 들어가 있어야 합니다. 담당 설정을 확인합니다.';
     }
     return;
   }
   refreshSyncButtonState();
   if (actionNote) {
     actionNote.textContent =
-      '한 번 누를 때마다 쇼핑몰에서 읽어서 시트에 쓰는 큰 작업이 돌아갑니다. 실패하면 이 화면을 캡처해 보내 주세요.';
+      '[실행] 1회마다 쇼핑몰 현재 데이터로 집계 시트를 덮어쓰며, 수 분이 걸릴 수 있습니다.';
   }
   btnSync.addEventListener('click', function onSync() {
     postSyncOpenFull();
@@ -274,13 +274,13 @@ function wireSync() {
 async function main() {
   if (!mount) {
     setChip('오류', 'err');
-    setStatus('이 화면이 들어갈 상자가 없어 띄울 수 없습니다. 이 페이지에 붙인 HTML을 캡처해 보내 주세요.');
+    setStatus('이 페이지에서 화면을 띄울 영역이 없습니다. 사이트 편집에 붙인 위젯·코드가 안내된 대로인지 담당자에게 확인합니다.');
     return;
   }
   hideSheetsButton();
   if (GAS_MODE.useMock) {
     setChip('미연결', 'soft');
-    setStatus('쇼핑몰과 잇는 주소가 아직 없습니다. 맨 위에 받은 주소·이 HTML 통째 붙이기를 확인하세요.');
+    setStatus('연결 주소가 이 페이지에 설정되어 있지 않습니다. 사이트에 삽입한 스크립트 상단의 연결 주소를 확인합니다.');
     setHint('');
     wireSync();
     return;
@@ -293,5 +293,5 @@ async function main() {
 
 main().catch((e) => {
   setChip('오류', 'err');
-  setStatus('첫 화면을 열다가 막혔습니다: ' + (e && e.message));
+  setStatus('초기 로드에 실패했습니다. 페이지를 새로 고침한 뒤 다시 시도합니다.');
 });
