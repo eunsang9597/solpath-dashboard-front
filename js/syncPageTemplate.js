@@ -1,7 +1,7 @@
 /**
  * id 접두 `sp-`
  */
-export const SYNC_PAGE_SHELL_HTML = `<div class="app-shell app-shell--v8">
+export const SYNC_PAGE_SHELL_HTML = `<div class="app-shell app-shell--v9">
       <header class="app-header">
         <div class="brand">
           <span class="brand-mark" aria-hidden="true"></span>
@@ -9,25 +9,63 @@ export const SYNC_PAGE_SHELL_HTML = `<div class="app-shell app-shell--v8">
             <h1>솔패스 대시보드</h1>
           </div>
         </div>
-        <div class="header-desc">
-          <p><strong>솔루션 편입</strong>으로 연동된 회원·상품·주문을 집계 시트에 반영한다. <strong>실행 1회마다 집계 시트 전체</strong>가 그 시점 연동 기준으로 갱신된다. 보존이 필요한 칸은 실행 전에 복사한다. 완료까지 수 분이 걸릴 수 있다.</p>
+        <div class="sp-intro-wrap">
+          <div class="sp-intro-card">
+            <p class="sp-intro-title">이 대시보드에서 하는 일</p>
+            <ul class="sp-intro-list">
+              <li>솔루션 편입으로 연동된 <strong>회원·상품·주문</strong> &rarr; 집계 시트 <strong>반영</strong></li>
+              <li>실행 <strong>1회</strong>마다 집계 시트 <strong>전면 갱신</strong> (해당 시점 연동 기준)</li>
+              <li>시트에 남겨 둘 내용 &rarr; 실행 <strong>전</strong>에 복사·보관</li>
+              <li>1회 작업 <strong>소요</strong>: 수 분 수준</li>
+            </ul>
+          </div>
         </div>
       </header>
 
-      <main class="app-main sp-app-main">
+      <div class="sp-app-outer">
+        <nav class="sp-tabs" role="tablist" aria-label="메뉴">
+          <button
+            type="button"
+            class="sp-tabs__btn is-active"
+            id="sp-tab-sync"
+            role="tab"
+            aria-selected="true"
+            aria-controls="sp-panel-sync"
+            tabindex="0"
+          >데이터 동기화</button>
+          <button
+            type="button"
+            class="sp-tabs__btn"
+            id="sp-tab-more"
+            role="tab"
+            aria-selected="false"
+            aria-controls="sp-panel-more"
+            tabindex="-1"
+          >추가 화면</button>
+        </nav>
+
+        <main class="app-main sp-app-main" id="sp-main">
         <div class="sp-overlay" id="sp-loadingOverlay" hidden aria-hidden="true">
           <div class="sp-overlay-box">
             <div class="sp-spinner" role="status" aria-label="로딩"></div>
             <p class="sp-overlay-text">처리 중</p>
           </div>
         </div>
-        <section class="panel panel--hero" aria-labelledby="sp-sync-title">
+
+        <div class="sp-tab-panels">
+        <section
+          class="sp-tab-panel is-active"
+          id="sp-panel-sync"
+          role="tabpanel"
+          aria-labelledby="sp-tab-sync"
+        >
+        <div class="panel panel--hero">
           <div class="panel__head">
-            <h2 id="sp-sync-title">데이터 동기화</h2>
+            <h2 class="sp-panel-eyebrow" id="sp-panel-sync-h">데이터 동기화</h2>
             <span class="chip chip--soft" id="sp-envChip">미연결</span>
           </div>
           <div class="sp-confirm-block">
-            <p class="sp-confirm-instruct">데이터 갱신·초기 맞춤 시: 아래 입력란에 <code>데이터 동기화</code>를 정확히 입력한 뒤 [실행]을 누른다.</p>
+            <p class="sp-confirm-instruct">데이터 초기화 시: 아래 텍스트 박스에 <code>데이터 동기화</code> 정확 입력 &rarr; <strong>실행</strong> 클릭.</p>
             <label class="sp-confirm-label" for="sp-confirm">확인 입력</label>
             <div class="sp-confirm-row">
               <input type="text" class="sp-confirm" id="sp-confirm" name="sp-confirm" autocomplete="off" spellcheck="false" disabled placeholder="데이터 동기화" />
@@ -49,6 +87,21 @@ export const SYNC_PAGE_SHELL_HTML = `<div class="app-shell app-shell--v8">
               </div>
             </div>
           </div>
+        </div>
         </section>
-      </main>
+
+        <section
+          class="sp-tab-panel"
+          id="sp-panel-more"
+          role="tabpanel"
+          aria-labelledby="sp-tab-more"
+          hidden
+        >
+          <div class="panel panel--sub">
+            <p class="sp-sub-placeholder">이 탭에 연결될 화면은 이후에 추가됩니다.</p>
+          </div>
+        </section>
+        </div>
+        </main>
+      </div>
     </div>`;

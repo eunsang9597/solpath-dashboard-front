@@ -17,7 +17,7 @@ function ensureShell() {
   if (m.getAttribute('data-solpath-autofill') === '0') {
     return m;
   }
-  if (!m.querySelector('.app-shell--v8')) {
+  if (!m.querySelector('.app-shell--v9')) {
     m.innerHTML = SYNC_PAGE_SHELL_HTML;
   }
   return m;
@@ -38,6 +38,45 @@ const sheetsLink = /** @type {HTMLAnchorElement | null} */ (scope.querySelector(
 const feedback = /** @type {HTMLElement | null} */ (scope.querySelector('#sp-feedback'));
 
 let syncBusy = false;
+
+function wireTabs_() {
+  if (!mount) {
+    return;
+  }
+  const tSync = mount.querySelector('#sp-tab-sync');
+  const tMore = mount.querySelector('#sp-tab-more');
+  const pSync = mount.querySelector('#sp-panel-sync');
+  const pMore = mount.querySelector('#sp-panel-more');
+  if (!tSync || !tMore || !pSync || !pMore) {
+    return;
+  }
+  function activateSync() {
+    tSync.classList.add('is-active');
+    tSync.setAttribute('aria-selected', 'true');
+    tSync.tabIndex = 0;
+    tMore.classList.remove('is-active');
+    tMore.setAttribute('aria-selected', 'false');
+    tMore.tabIndex = -1;
+    pSync.classList.add('is-active');
+    pSync.removeAttribute('hidden');
+    pMore.classList.remove('is-active');
+    pMore.setAttribute('hidden', '');
+  }
+  function activateMore() {
+    tMore.classList.add('is-active');
+    tMore.setAttribute('aria-selected', 'true');
+    tMore.tabIndex = 0;
+    tSync.classList.remove('is-active');
+    tSync.setAttribute('aria-selected', 'false');
+    tSync.tabIndex = -1;
+    pMore.classList.add('is-active');
+    pMore.removeAttribute('hidden');
+    pSync.classList.remove('is-active');
+    pSync.setAttribute('hidden', '');
+  }
+  tSync.addEventListener('click', activateSync);
+  tMore.addEventListener('click', activateMore);
+}
 
 function setChip(text, kind) {
   if (!envChip) {
@@ -276,6 +315,7 @@ async function main() {
     setChip('오류', 'err');
     return;
   }
+  wireTabs_();
   hideSheetsButton();
   if (GAS_MODE.useMock) {
     setChip('미연결', 'soft');
