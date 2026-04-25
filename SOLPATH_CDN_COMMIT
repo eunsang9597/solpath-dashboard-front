@@ -1,2 +1,2 @@
-# solpath-dashboard-front 를 origin/mirror에 푸시한 뒤, 그때의 풀 커밋 SHA 한 줄(아래만 쓰면 됨; # 줄 무시)
-17f4945dc721ead17cef30e45f3aa687b858107e
+# jsDelivr: 아래 한 줄 = 정적 파일이 있는 커밋 (보통 직전 배포 커밋 풀 SHA)
+7bf02925f0a748f57f0b14eeaf16f51f5bbfaecc
