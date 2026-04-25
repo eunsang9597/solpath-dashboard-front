@@ -606,6 +606,12 @@ export function initProductMapping(mount) {
         }
       } catch (_s) {}
       await loadList();
+      const dInit = r.data || {};
+      const nSeeded = dInit.seededRowCount != null ? Number(dInit.seededRowCount) : 0;
+      if (nSeeded > 0) {
+        setHint('원천 DB 기준으로 분류 시트에 상품 ' + nSeeded + '건을 넣었습니다. 시트에서도 확인하세요.', true);
+        syncFooterAndInstruct();
+      }
     } catch (_e) {
       setHint('스프레드시트를 만들지 못했습니다.', true);
       syncFooterAndInstruct();
