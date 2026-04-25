@@ -52,6 +52,29 @@ function wireTabs_() {
   if (!tSync || !tPm || !pSync || !pPm) {
     return;
   }
+  const introSync = /** @type {HTMLElement | null} */ (mount.querySelector('#sp-introSync'));
+  const introPm = /** @type {HTMLElement | null} */ (mount.querySelector('#sp-introPm'));
+  function setIntroTab_(which) {
+    if (which === 'pm') {
+      if (introSync) {
+        introSync.setAttribute('hidden', '');
+        introSync.setAttribute('aria-hidden', 'true');
+      }
+      if (introPm) {
+        introPm.removeAttribute('hidden');
+        introPm.setAttribute('aria-hidden', 'false');
+      }
+    } else {
+      if (introPm) {
+        introPm.setAttribute('hidden', '');
+        introPm.setAttribute('aria-hidden', 'true');
+      }
+      if (introSync) {
+        introSync.removeAttribute('hidden');
+        introSync.setAttribute('aria-hidden', 'false');
+      }
+    }
+  }
   function activateSync() {
     tSync.classList.add('is-active');
     tSync.setAttribute('aria-selected', 'true');
@@ -63,6 +86,7 @@ function wireTabs_() {
     pSync.removeAttribute('hidden');
     pPm.classList.remove('is-active');
     pPm.setAttribute('hidden', '');
+    setIntroTab_('sync');
   }
   function activatePm() {
     tPm.classList.add('is-active');
@@ -75,9 +99,11 @@ function wireTabs_() {
     pPm.removeAttribute('hidden');
     pSync.classList.remove('is-active');
     pSync.setAttribute('hidden', '');
+    setIntroTab_('pm');
   }
   tSync.addEventListener('click', activateSync);
   tPm.addEventListener('click', activatePm);
+  setIntroTab_('sync');
 }
 
 function setChip(text, kind) {

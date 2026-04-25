@@ -10,13 +10,25 @@ export const SYNC_PAGE_SHELL_HTML = `<div class="app-shell app-shell--v9">
           </div>
         </div>
         <div class="sp-intro-wrap">
-          <div class="sp-intro-card">
-            <p class="sp-intro-title">이 대시보드에서 하는 일</p>
+          <div class="sp-intro-card sp-intro-card--sync" id="sp-introSync">
+            <p class="sp-intro-title">데이터 동기화 · 사용 안내</p>
             <ul class="sp-intro-list">
-              <li>솔루션 편입으로 연동된 <strong>회원·상품·주문</strong> &rarr; 집계 시트 <strong>반영</strong></li>
-              <li>실행 <strong>1회</strong>마다 집계 시트 <strong>전면 갱신</strong> (해당 시점 연동 기준)</li>
-              <li>시트에 남겨 둘 내용 &rarr; 실행 <strong>전</strong>에 복사·보관</li>
-              <li>1회 작업 <strong>소요</strong>: 수 분 수준</li>
+              <li>아임웹 <strong>솔루션 편입</strong>으로 연동된 <strong>회원·상품·주문(품목)</strong>을 서버가 읽어 <strong>집계(원천) 스프레드시트</strong>에 올립니다. 이 탭 상단 <strong>집계 시트 열기</strong>는 그 <strong>마스터 집계 파일</strong>로 이동합니다(운영 DB 분류 시트와는 별도).</li>
+              <li><strong>실행</strong> 1회마다 집계 시트가 <strong>해당 시점의 연동 스냅샷</strong>으로 <strong>전면 갱신</strong>됩니다. 시트에 직접 적어 둔 메모·수식·수동 정리는 <strong>덮어쓰일 수 있으므로</strong>, 남겨 둘 내용은 반드시 <strong>실행 전</strong>에 복사·다른 파일로 옮깁니다.</li>
+              <li>확인 입력란에 <code>데이터 동기화</code>를 <strong>한 글자도 틀리지 않게</strong> 입력한 뒤 <strong>실행</strong>합니다. 실수로 전체를 돌리는 것을 막기 위한 잠금입니다.</li>
+              <li>한 번 실행하는 데 <strong>수 분</strong> 걸릴 수 있습니다. 완료되면 메시지와 <strong>집계 시트 확인하기</strong>로 반영 건수를 확인한 뒤, 스프레드시트를 열어 검증합니다.</li>
+              <li>배지가 <strong>미연결</strong>이면 GAS 웹앱 URL·스니펫이 제대로 안 붙은 상태입니다. 임웹/운영에 안내된 주입 절차를 확인합니다.</li>
+            </ul>
+          </div>
+          <div class="sp-intro-card sp-intro-card--pm" id="sp-introPm" hidden>
+            <p class="sp-intro-title">상품 항목 분류 · 사용 안내</p>
+            <ul class="sp-intro-list">
+              <li>원천 <strong>집계(마스터) 시트</strong>의 상품과 별도로, <strong>운영 DB(분류) 스프레드시트</strong>에 <code>product_mapping</code> 시트를 두고, 품목마다 <strong>내부 대분류</strong>(솔패스·솔루틴·챌린지·교재·자소서·미분류)와 <strong>상태</strong>(진행·만료·테스트·(구)상품)을 붙여 관리합니다. 상단 <strong>운영 DB(분류) 열기</strong>는 이 <strong>분류 전용</strong> 파일로 갑니다.</li>
+              <li><strong>집계 시트</strong>의 행(회원/주문 반영)은 <strong>데이터 동기화</strong> 탭에서, <strong>이 탭</strong>에서는 품목 <strong>분류·상태</strong>만 맞춥니다. 운영 시트가 없으면 <strong>상품 불러오기</strong>로 먼저 만듭니다.</li>
+              <li>드롭다운을 바꾼 뒤 <strong>수정하기</strong>로 시트에 반영합니다. 저장이 끝나면 잠시 로딩 후 목록이 다시 그려집니다. 바꾼 내용이 없으면 <strong>수정하기</strong>는 비활성입니다(저장할 변경이 없을 때).</li>
+              <li><strong>데이터 초기화</strong>는 운영 <code>product_mapping</code>을 비우고, 원천 <code>products</code> 기준으로 <strong>통째로 다시 채움</strong>입니다. 팀에 공유한 뒤에만 누릅니다(되돌릴 수 없음).</li>
+              <li><strong>상태</strong>가 <strong>테스트</strong>인 품목은 대분류 박스가 아닌, 아래 <strong>상태·테스트</strong> 붉은 블록에만 모여 표시됩니다(동시에 대분류 구역에 또 나오지 않습니다).</li>
+              <li><strong>미분류만</strong>을 켜면 내부 대분류가 <code>미분류</code>인 품목만 좁혀 봅니다. 검색은 상품명·번호에 대해 동작합니다.</li>
             </ul>
           </div>
         </div>
