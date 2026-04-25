@@ -18,7 +18,7 @@ function ensureShell() {
     return m;
   }
   // 아임웹에 예전에 붙인 정적 HTML(구 .app-shell)이 있으면 그대로 두지 않고 v2로 갈아탐
-  if (!m.querySelector('.app-shell--v4')) {
+  if (!m.querySelector('.app-shell--v5')) {
     m.innerHTML = SYNC_PAGE_SHELL_HTML;
   }
   return m;
@@ -151,9 +151,9 @@ async function postSyncOpenFull() {
   refreshSyncButtonState();
   hideSheetsButton();
   setLoading(true);
-  setStatus('맞춤을 시작했습니다. 끝날 때까지 수 분이 걸릴 수 있습니다.');
+  setStatus('쇼핑몰에서 읽어 온 뒤 시트에 쓰는 중입니다. 끝날 때까지 수 분이 걸릴 수 있습니다.');
   setHint('');
-  setChip('처리', 'soft');
+  setChip('진행', 'soft');
 
   try {
     const res = await fetch(url, {
@@ -167,8 +167,8 @@ async function postSyncOpenFull() {
       j = JSON.parse(text);
     } catch (_e) {
       setChip('오류', 'err');
-      setStatus('응답을 정상으로 읽지 못했습니다. 잠시 후 다시 시도하거나 담당자에게 문의하세요.');
-      setHint('(참고) ' + String(text).slice(0, 120));
+      setStatus('끝나는 응답이 아닙니다. 잠시 뒤 다시 누르거나, 이 화면을 캡처해 보내 주세요.');
+      setHint('(' + String(text).slice(0, 100) + '…)');
       return;
     }
     if (!j.ok) {
@@ -176,11 +176,11 @@ async function postSyncOpenFull() {
       const err = j.error != null ? String(j.error) : 'ERROR';
       const msg = j.message != null ? String(j.message) : '';
       if (err === 'SYNC_FAILED') {
-        setStatus('맞춤이 중간에 실패했습니다. ' + (msg || '원인은 시트·기록에 남을 수 있습니다.'));
+        setStatus('중간에 멈췄습니다. ' + (msg || '시트에 이유가 적혀 있을 수 있습니다.'));
       } else {
-        setStatus('처리에 실패했습니다. ' + (msg || ''));
+        setStatus('끝까지 가지 못했습니다. ' + (msg || ''));
       }
-      setHint('이 화면을 캡처해 솔루션 담당자에게 보내 주세요. 시트에 남는 동기 기록도 함께 보여 주시면 됩니다.');
+      setHint('이 화면을 캡처해 보내 주세요.');
       return;
     }
 
@@ -190,28 +190,28 @@ async function postSyncOpenFull() {
     const p = d.products;
     const o = d.orders;
     setStatus(
-      '완료. 회원 ' +
+      '끝났습니다. 시트에 회원 ' +
         (m && m.rows != null ? m.rows : '—') +
-        '행 · 상품 ' +
+        '줄, 상품 ' +
         (p && p.rows != null ? p.rows : '—') +
-        '행 · 주문 ' +
+        '줄, 주문 ' +
         (o && o.orderRows != null ? o.orderRows : '—') +
-        '건(세부 품목 ' +
+        '건(안의 품목 줄 ' +
         (o && o.itemRows != null ? o.itemRows : '—') +
-        '행)'
+        '줄)이 들어갔습니다.'
     );
     const sheetUrl = d.spreadsheetUrl != null ? String(d.spreadsheetUrl).trim() : '';
     if (sheetUrl) {
       showSheetsButton(sheetUrl);
-      setHint('아래 [마스터 시트 열기]로 열리는 집계 시트를 확인하세요.');
+      setHint('아래 [집계 시트 열기]로 열리는 시트를 확인하세요.');
     } else {
       hideSheetsButton();
-      setHint('시트로 바로 가는 주소를 받지 못했습니다. 솔루션 담당자에게 말씀해 주세요.');
+      setHint('시트로 가는 링크를 못 받았습니다. 캡처 후 받은 연락처로 보내 주세요.');
     }
   } catch (e) {
     setChip('오류', 'err');
-    setStatus('연결에 실패했습니다. ' + (e && e.message != null ? e.message : String(e)));
-    setHint('인터넷·주소(맨 윗줄)를 한 번 더 확인하시고, 같은 일이 나면 이 화면을 캡처해 담당자에게 보내 주세요.');
+    setStatus('쇼핑몰/시트 쪽에 닿지 못했습니다. ' + (e && e.message != null ? e.message : String(e)));
+    setHint('인터넷·맨 위 연결 주소를 본 뒤, 이 화면을 캡처해 보내 주세요.');
   } finally {
     syncBusy = false;
     setLoading(false);
@@ -237,14 +237,14 @@ function wireSync() {
     }
     if (actionNote) {
       actionNote.textContent =
-        '맨 윗줄에 솔루션에서 안내한 연결 주소가 들어갔는지 확인하세요. 이 줄이 항상 맨 위에, 맨 아래 느낌의 스크립트보다 위에 있어야 합니다.';
+        '쇼핑몰과 붙이려면 맨 위에 받은 연결 주소가 있어야 합니다. 이 페이지에 맨 먼저 붙이는 그 한 줄이면 됩니다.';
     }
     return;
   }
   refreshSyncButtonState();
   if (actionNote) {
     actionNote.textContent =
-      '한 번 실행할 때마다 쇼핑·구글 쪽에 부담이 갑니다. 실패하면 이 화면을 캡처해 담당자에게 보내 주세요.';
+      '한 번 누를 때마다 쇼핑몰에서 읽어서 시트에 쓰는 큰 작업이 돌아갑니다. 실패하면 이 화면을 캡처해 보내 주세요.';
   }
   btnSync.addEventListener('click', function onSync() {
     postSyncOpenFull();
@@ -254,24 +254,24 @@ function wireSync() {
 async function main() {
   if (!mount) {
     setChip('오류', 'err');
-    setStatus('필수 영역이 없어 화면을 띄울 수 없습니다. 붙여 넣은 코드를 솔루션 담당자에게 보내 주세요.');
+    setStatus('이 화면이 들어갈 상자가 없어 띄울 수 없습니다. 이 페이지에 붙인 HTML을 캡처해 보내 주세요.');
     return;
   }
   hideSheetsButton();
   if (GAS_MODE.useMock) {
     setChip('미연결', 'soft');
-    setStatus('쇼핑몰과 연결이 아직 잡혀 있지 않습니다.');
-    setHint('맨 윗줄에 솔루션에서 안내한 연결 주소가 들어갔는지 확인하세요. 담당자가 넣어 준 코드가 아니면 담당자에게 다시 보내 달라고 하시면 됩니다.');
+    setStatus('쇼핑몰과 잇는 주소가 아직 없습니다.');
+    setHint('맨 위에 받은 연결 주소를 넣었는지, 이 HTML을 통째로 붙였는지 확인하세요.');
     wireSync();
     return;
   }
   setChip('연결됨', 'ok');
-  setStatus('맞춤 대기. 아래에 ' + SYNC_CONFIRM + ' 를 입력한 뒤 [전체 데이터 동기화]를 누르세요.');
-  setHint('맞춤 순서: 회원 → 상품 → 주문. 끊기면 시트·기록을 보여 주시면 담당자가 확인할 수 있습니다.');
+  setStatus('아래에 ' + SYNC_CONFIRM + ' 를 쓰고 [전체 데이터 동기화]를 누르면, 쇼핑몰 → 시트로 옮깁니다.');
+  setHint('시트에는 회원 → 상품 → 주문 순으로 한 번에 쌓입니다.');
   wireSync();
 }
 
 main().catch((e) => {
   setChip('오류', 'err');
-  setStatus('초기화 실패: ' + (e && e.message));
+  setStatus('첫 화면을 열다가 막혔습니다: ' + (e && e.message));
 });
