@@ -29,8 +29,9 @@ python3 -m http.server 8080
 
 ## 설정
 
-- `js/config.js` — **팀 공개로 올릴 수 있는** 값만 (Web App `exec` URL 베이스 path 등).  
-- 비밀 토큰·Client Secret은 **레포에 넣지 말고** GAS Script Properties + 서버 측 검증만.
+- `GAS_BASE_URL` — Web App `…/exec` **전체** URL.  
+- `DASHBOARD_SYNC_API_TOKEN` — GAS `SOLPATH_DASHBOARD_TOKEN` Property 와 동일(공개 static 에 실값 **커밋 금지**).  
+- Client Secret 등은 GAS Property만.
 
 ## 푸시 (로컬 `front/`)
 
