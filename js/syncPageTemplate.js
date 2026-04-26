@@ -13,10 +13,10 @@ export const SYNC_PAGE_SHELL_HTML = `<div class="app-shell app-shell--v9">
           <div class="sp-intro-card sp-intro-card--an" id="sp-introAn" aria-hidden="false">
             <p class="sp-intro-title">일/월간 매출 및 인원 지표 · 사용 안내</p>
             <ul class="sp-intro-list">
-              <li>이 화면은 <strong>일·월 단위 매출</strong>과 <strong>인원(건수)</strong>을 <strong>얼마로 맞출지</strong> 적고, 표로 보는 곳입니다. <strong>연동(주문·회원)만 모으는 쪽</strong>, <strong>상품만 분류하는 쪽</strong>, <strong>여기(지표)</strong>는 <strong>드라이브에 붙는 파일이 서로 다릅니다</strong>. 위 <strong>드라이브(일/월간 지표)</strong>는 <strong>이 화면</strong>에 쓴 내용이 들어가는 쪽으로 갑니다.</li>
-              <li><strong>드라이브에 저장</strong>을 누르면, 여기 표에 적은 줄이 <strong>그대로</strong> 올라갑니다(파일 안 <strong>맨 앞</strong>에 붙는 <strong>목표</strong> 쪽). 처음이면 <strong>데이터 생성</strong>이 먼저이고, 안 되면 <strong>「데이터 동기화」</strong>를 한 번 실행한 뒤에 다시 시도해 보면 될 때가 있습니다.</li>
-              <li><strong>범위</strong>를 <strong>대분류</strong>로 두면 <strong>상품 항목 분류</strong>에 맞는 상품군(솔패스, 미분류 등)에 맞게, <strong>상품</strong>이면 <strong>상품 번호</strong>를 넣습니다. <strong>월 0(연간)</strong>이면 그 해 한 줄에 넣는 연간 목표로 둡니다.</li>
-              <li>아래 <strong>매출</strong> / <strong>건수</strong>는 같은 표에서 <strong>보기만</strong> 바꿉니다. 위에서 고른 <strong>연·월</strong>은 <strong>화면에 보이는 행</strong>만 골라 냅니다.</li>
+              <li><strong>이 탭</strong>은 실제 <strong>매출(원) 목표</strong>와 <strong>인원(건수) 목표</strong>를 <strong>숫자로</strong> 모아 두는 곳입니다. <strong>꺾은선·막대 그래프는 없고</strong>, <strong>표(칸)</strong>로만 보고 고칩니다. (연동·상품분류·이 목표는 <strong>드라이브에 파일이 셋</strong>으로 갈립니다.)</li>
+              <li><strong>드라이브에 저장</strong>을 누르면, 아래 표에 올라와 있는 <strong>목표 줄</strong>이 <strong>팀 구글 드라이브</strong>의 <strong>이 지표용 파일</strong>에 담깁니다. <strong>처음 한 번</strong>은 <strong>데이터 생성</strong>이 필요할 수 있고, <strong>생성이 안 될 때</strong>는 <strong>「데이터 동기화」</strong>를 한번 실행한 뒤에 다시 시도합니다.</li>
+              <li><strong>범위</strong>를 <strong>대분류</strong>로 두면 <strong>상품 항목 분류</strong>에 맞는 상품군(솔패스, 미분류 등)에 맞게, <strong>상품</strong>이면 <strong>상품 번호</strong>를 넣습니다. <strong>월 0(연간)</strong>이면 그 해 한 줄에 잡는 연간 목표로 둡니다.</li>
+              <li><strong>매출</strong> / <strong>건수(인원)</strong> 버튼은 <strong>같은 표</strong>에서 <strong>어느 칸을 굵게 볼지</strong>만 바꿉니다. 위 <strong>연도·월</strong>을 고르면 <strong>그 조건에 맞는 행</strong>만 남깁니다.</li>
               <li><strong>전부 초기화</strong>는 여기에 쌓인 목표와 일부 자동 캐시를 비웁니다. 팀에 공지한 뒤에만 누릅니다.</li>
             </ul>
           </div>
@@ -96,6 +96,9 @@ export const SYNC_PAGE_SHELL_HTML = `<div class="app-shell app-shell--v9">
             <div class="panel__head sp-an-head">
               <h2 class="sp-panel-eyebrow" id="sp-an-eyebrow">일/월간 매출 및 인원 지표</h2>
               <div class="sp-an-head__right" id="sp-an-external" hidden>
+                <button type="button" class="btn btn--secondary" id="sp-an-btnRepair" hidden>
+                  탭·주문라인 갱신
+                </button>
                 <a
                   class="btn btn--secondary sp-sync-head__link"
                   id="sp-an-linkSheet"
@@ -108,29 +111,41 @@ export const SYNC_PAGE_SHELL_HTML = `<div class="app-shell app-shell--v9">
             </div>
             <div class="sp-confirm-block sp-an-block" id="sp-an-block">
               <p class="sp-confirm-instruct" id="sp-an-instruct">
-                이 화면은 <strong>일·월 단위 매출</strong>과 <strong>인원(건수)</strong>을 <strong>얼마로 맞출지</strong> 적고, 표로 보는 곳입니다. <strong>드라이브에 저장</strong>을 누르면 여기 표에 쓴 줄이 <strong>구글 드라이브</strong>에 붙습니다(파일 안 <strong>맨 앞 목표</strong> 쪽). 처음이면 <strong>데이터 생성</strong>이 먼저이고, 안 되면 <strong>「데이터 동기화」</strong>를 한 번 실행한 뒤 다시 시도해 보세요.
+                <strong>동기화된 주문 마스터</strong>에서 <strong>실제 매출·주문 건수·구매자 수</strong>를 봅니다(「<strong>데이터 동기화</strong>」로 최신이 반영돼 있어야 합니다). <strong>목표(KPI)</strong>는 아래 <strong>선택</strong>이며, 값을 비워 두고 비교할 땐 <strong>전년 동일 기간</strong> 실적을 기준으로 삼을 수 있습니다. <strong>드라이브에 저장</strong>은 목표 표를 쓰는 경우에만 필요합니다.
               </p>
               <p class="sp-pm__hint" id="sp-an-hint" hidden></p>
+              <div class="sp-an-actuals" id="sp-an-actuals" hidden>
+                <h3 class="sp-an-actuals__h">집계 실적(마스터 DB)</h3>
+                <p class="sp-an-actuals__lede" id="sp-an-actualsLede" aria-live="polite">기간을 고르면 아래에 그 기간에 맞는 합계가 뜹니다. 기간이「전체」는 <strong>이번 달</strong> 실적을 뜻합니다.</p>
+                <div class="sp-an-filters" id="sp-an-filters">
+                  <label class="sp-an-filters__f sp-an-filters__f--wide"><span class="sp-pm-filters__lbl">기간</span>
+                    <select class="sp-confirm" id="sp-an-filterPeriod" title="집계 실적과 목표 표를 같은 기간으로 맞출 수 있습니다"></select>
+                  </label>
+                </div>
+                <div class="sp-an-actuals__cards" id="sp-an-actualsCards" aria-label="이번 점에 대한 집계">
+                  <div class="sp-an-card" id="sp-an-cardSales"><span class="sp-an-card__lbl">실제 매출(원)</span><span class="sp-an-card__val" id="sp-an-valSales">—</span></div>
+                  <div class="sp-an-card" id="sp-an-cardOrders"><span class="sp-an-card__lbl">주문 건수</span><span class="sp-an-card__val" id="sp-an-valOrders">—</span></div>
+                  <div class="sp-an-card" id="sp-an-cardMem"><span class="sp-an-card__lbl">구매자 수(고유)</span><span class="sp-an-card__val" id="sp-an-valMem">—</span></div>
+                </div>
+                <p class="sp-an-actuals__prev" id="sp-an-actualsPrev" aria-live="polite"></p>
+                <p class="sp-an-actuals__warn" id="sp-an-actualsWarn" hidden></p>
+              </div>
+              <div class="sp-pm__loading" id="sp-an-loading" hidden>불러오는 중</div>
               <div class="sp-pm-init" id="sp-an-init" hidden>
+                <p class="sp-pm-init__lede" id="sp-an-initLede">목표를 드라이브 표에 쓰려면 먼저 여기서 시트를 만듭니다. <strong>위 집계 실적</strong>은 마스터만 있으면 됩니다. 이미 옛날 집계 파일만 있을 땐, 시트를 연 뒤 오른쪽 <strong>탭·주문라인 갱신</strong>으로 최신 구조·데이터를 맞출 수 있습니다.</p>
                 <div class="sp-confirm-row sp-pm-init__row">
-                  <button type="button" class="btn btn--primary" id="sp-an-btnInit">데이터 생성</button>
+                  <button type="button" class="btn btn--primary" id="sp-an-btnInit">집계용 드라이브 시트 생성</button>
                 </div>
               </div>
               <div id="sp-an-body" hidden>
-                <div class="sp-an-subtabs" role="tablist" aria-label="매출·인원(건수) 보기">
+                <details class="sp-an-kpi" id="sp-an-kpi">
+                  <summary class="sp-an-kpi__sum">목표(KPI) 표 · 부가 입력</summary>
+                <div class="sp-an-subtabs" role="tablist" aria-label="목표 표에서 강조할 칸">
                   <button type="button" class="sp-an-subtabs__btn is-active" id="sp-an-subSales" role="tab" aria-selected="true" aria-controls="sp-an-tableWrap" tabindex="0">매출</button>
                   <button type="button" class="sp-an-subtabs__btn" id="sp-an-subCount" role="tab" aria-selected="false" aria-controls="sp-an-tableWrap" tabindex="-1">건수</button>
                 </div>
-                <p class="sp-an-subtabs__lede" id="sp-an-subLede" aria-live="polite">매출 목표(원) 열을 강조한 뷰입니다.</p>
-                <div class="sp-an-filters" id="sp-an-filters">
-                  <label class="sp-an-filters__f"><span class="sp-pm-filters__lbl">연도</span>
-                    <select class="sp-confirm" id="sp-an-filterYear" title="화면에 보일 행만 걸러 냅니다"></select>
-                  </label>
-                  <label class="sp-an-filters__f"><span class="sp-pm-filters__lbl">월</span>
-                    <select class="sp-confirm" id="sp-an-filterMonth" title="0=연간(월 구분 없음) 포함"></select>
-                  </label>
-                </div>
-                <div class="sp-pm__loading" id="sp-an-loading" hidden>불러오는 중</div>
+                <p class="sp-an-subtabs__lede" id="sp-an-subLede" aria-live="polite">아래 <strong>목표</strong> 표에서 <strong>매출(원)</strong> 열이 더 잘 보이게 켠 상태입니다.</p>
+                <p class="sp-an-table-legend" id="sp-an-tableLegend">▸ <strong>기간</strong>에 맞는 <strong>목표</strong> 행만 남깁니다(위 <strong>집계 실적</strong>과는 별도로, 직접 넣는 숫자입니다). 목표를 안 넣을 때는 <strong>전년 동기</strong> 실적을 기준으로 비교하세요.</p>
                 <div class="sp-an-table-wrap" id="sp-an-tableWrap" role="tabpanel" aria-labelledby="sp-an-subSales">
                   <div class="sp-an-table-scroll">
                     <table class="sp-an-table sp-an-table--mode-sales" id="sp-an-table">
@@ -151,7 +166,7 @@ export const SYNC_PAGE_SHELL_HTML = `<div class="app-shell app-shell--v9">
                   </div>
                 </div>
                 <div class="sp-an-add" id="sp-an-form">
-                  <p class="sp-an-add__title">한 줄 추가</p>
+                  <p class="sp-an-add__title">목표 입력(한 줄씩)</p>
                   <div class="sp-an-add__row">
                     <label>연 <input type="number" class="sp-confirm" id="sp-an-inY" min="2000" max="2100" step="1" /></label>
                     <label>월
@@ -171,11 +186,12 @@ export const SYNC_PAGE_SHELL_HTML = `<div class="app-shell app-shell--v9">
                     <input type="text" class="sp-confirm" id="sp-an-inNotes" maxlength="200" />
                   </label>
                   <div class="sp-an-add__ctas">
-                    <button type="button" class="btn btn--secondary" id="sp-an-btnAdd">목록에 넣기</button>
-                    <button type="button" class="btn btn--primary" id="sp-an-btnSave">드라이브에 저장</button>
+                    <button type="button" class="btn btn--secondary" id="sp-an-btnAdd">이 줄을 표에 넣기</button>
+                    <button type="button" class="btn btn--primary" id="sp-an-btnSave">지금 드라이브에 다시 저장</button>
                     <button type="button" class="btn btn--danger" id="sp-an-btnReset">전부 초기화</button>
                   </div>
                 </div>
+                </details>
               </div>
             </div>
           </div>

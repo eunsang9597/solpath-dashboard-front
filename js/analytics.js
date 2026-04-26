@@ -181,24 +181,83 @@ function formatHintWithErrorCode_(r) {
 }
 
 /**
+ * 기간 셀렉트 → GAS `year`·`month` (0=해당 연 전체)
+ * @param {string} p
+ * @return {{ y: number, m: number }}
+ */
+function periodValueToApiYm_(p) {
+  const yNow = new Date().getFullYear();
+  const mNow = new Date().getMonth() + 1;
+  const s = p != null && String(p).length ? String(p) : 'all';
+  if (s === 'all') {
+    return { y: yNow, m: mNow };
+  }
+  if (s.length === 5 && s.charAt(0) === 'Y') {
+    return { y: parseInt(s.slice(1, 5), 10), m: 0 };
+  }
+  const re = /^Y(\d{4})M(\d{1,2})$/;
+  const m = s.match(re);
+  if (m) {
+    return { y: parseInt(m[1], 10), m: parseInt(m[2], 10) };
+  }
+  return { y: yNow, m: mNow };
+}
+
+/**
+ * @param {number} n
+ * @return {string}
+ */
+function fmtKrw_(n) {
+  if (!isFinite(n)) {
+    return '—';
+  }
+  return n.toLocaleString('ko-KR', { maximumFractionDigits: 0 });
+}
+
+/**
+ * @param {number} n
+ * @return {string}
+ */
+function fmtInt_(n) {
+  if (!isFinite(n)) {
+    return '—';
+  }
+  return n.toLocaleString('ko-KR', { maximumFractionDigits: 0 });
+}
+
+/**
  * @param {HTMLElement} mount
  * @param {Record<string, unknown>} d
  */
 export function applyAnalyticsHeaderUrls(mount, d) {
   const ext = mount.querySelector('#sp-an-external');
   const lo = /** @type {HTMLAnchorElement | null} */ (mount.querySelector('#sp-an-linkSheet'));
-  if (!ext || !lo) {
+  const btnR = /** @type {HTMLButtonElement | null} */ (mount.querySelector('#sp-an-btnRepair'));
+  if (!ext) {
     return;
   }
   const u =
     d && d.analyticsSpreadsheetUrl != null ? String(d.analyticsSpreadsheetUrl).trim() : '';
-  if (d && d.analyticsReady === true && u && /^https?:\/\//i.test(u)) {
-    lo.href = u;
-    lo.removeAttribute('hidden');
+  const hasUrl = Boolean(d && d.analyticsReady === true && u && /^https?:\/\//i.test(u));
+  if (lo) {
+    if (hasUrl) {
+      lo.href = u;
+      lo.removeAttribute('hidden');
+    } else {
+      lo.setAttribute('hidden', '');
+      lo.removeAttribute('href');
+    }
+  }
+  if (btnR) {
+    if (d && d.analyticsReady === true) {
+      btnR.removeAttribute('hidden');
+    } else {
+      btnR.setAttribute('hidden', '');
+    }
+  }
+  if (d && d.analyticsReady === true) {
     ext.removeAttribute('hidden');
   } else {
-    lo.setAttribute('hidden', '');
-    lo.removeAttribute('href');
     ext.setAttribute('hidden', '');
   }
 }
@@ -231,6 +290,12 @@ export function initAnalytics(mount) {
   const el = {
     init: /** @type {HTMLElement | null} */ (mount.querySelector('#sp-an-init')),
     body: /** @type {HTMLElement | null} */ (mount.querySelector('#sp-an-body')),
+    actuals: /** @type {HTMLElement | null} */ (mount.querySelector('#sp-an-actuals')),
+    valSales: /** @type {HTMLElement | null} */ (mount.querySelector('#sp-an-valSales')),
+    valOrders: /** @type {HTMLElement | null} */ (mount.querySelector('#sp-an-valOrders')),
+    valMem: /** @type {HTMLElement | null} */ (mount.querySelector('#sp-an-valMem')),
+    actualsPrev: /** @type {HTMLElement | null} */ (mount.querySelector('#sp-an-actualsPrev')),
+    actualsWarn: /** @type {HTMLElement | null} */ (mount.querySelector('#sp-an-actualsWarn')),
     btnInit: /** @type {HTMLButtonElement | null} */ (mount.querySelector('#sp-an-btnInit')),
     hint: /** @type {HTMLElement | null} */ (mount.querySelector('#sp-an-hint')),
     loading: /** @type {HTMLElement | null} */ (mount.querySelector('#sp-an-loading')),
@@ -239,8 +304,8 @@ export function initAnalytics(mount) {
     subCount: /** @type {HTMLButtonElement | null} */ (mount.querySelector('#sp-an-subCount')),
     subLede: /** @type {HTMLElement | null} */ (mount.querySelector('#sp-an-subLede')),
     table: /** @type {HTMLElement | null} */ (mount.querySelector('#sp-an-table')),
-    filterYear: /** @type {HTMLSelectElement | null} */ (mount.querySelector('#sp-an-filterYear')),
-    filterMonth: /** @type {HTMLSelectElement | null} */ (mount.querySelector('#sp-an-filterMonth')),
+    tableWrap: /** @type {HTMLElement | null} */ (mount.querySelector('#sp-an-tableWrap')),
+    filterPeriod: /** @type {HTMLSelectElement | null} */ (mount.querySelector('#sp-an-filterPeriod')),
     inY: /** @type {HTMLInputElement | null} */ (mount.querySelector('#sp-an-inY')),
     inM: /** @type {HTMLSelectElement | null} */ (mount.querySelector('#sp-an-inM')),
     inScope: /** @type {HTMLSelectElement | null} */ (mount.querySelector('#sp-an-inScope')),
@@ -250,7 +315,8 @@ export function initAnalytics(mount) {
     inNotes: /** @type {HTMLInputElement | null} */ (mount.querySelector('#sp-an-inNotes')),
     btnAdd: /** @type {HTMLButtonElement | null} */ (mount.querySelector('#sp-an-btnAdd')),
     btnSave: /** @type {HTMLButtonElement | null} */ (mount.querySelector('#sp-an-btnSave')),
-    btnReset: /** @type {HTMLButtonElement | null} */ (mount.querySelector('#sp-an-btnReset'))
+    btnReset: /** @type {HTMLButtonElement | null} */ (mount.querySelector('#sp-an-btnReset')),
+    btnRepair: /** @type {HTMLButtonElement | null} */ (mount.querySelector('#sp-an-btnRepair'))
   };
   if (!el.init || !el.body) {
     return;
@@ -260,6 +326,8 @@ export function initAnalytics(mount) {
   let localRows = /** @type {object[]} */ ([]);
   let subMode = 'sales';
   let ready = false;
+  /** @type {number|undefined} */
+  let persistTimer = undefined;
 
   function setHint(t, show) {
     if (!el.hint) {
@@ -311,7 +379,6 @@ export function initAnalytics(mount) {
     }
   }
 
-  buildMonthOptions_(el.filterMonth);
   buildInMonth_(el.inM);
 
   const yNow = new Date().getFullYear();
@@ -340,7 +407,7 @@ export function initAnalytics(mount) {
         el.subCount.setAttribute('aria-selected', 'true');
         el.subCount.tabIndex = 0;
         if (el.subLede) {
-          el.subLede.textContent = '건수 목표 열을 강조한 뷰입니다.';
+          el.subLede.textContent = '같은 표에서 인원(건수) 칸이 더 잘 보이게 켠 상태입니다.';
         }
         if (el.table) {
           el.table.classList.remove('sp-an-table--mode-sales');
@@ -354,7 +421,7 @@ export function initAnalytics(mount) {
         el.subSales.setAttribute('aria-selected', 'true');
         el.subSales.tabIndex = 0;
         if (el.subLede) {
-          el.subLede.textContent = '매출 목표(원) 열을 강조한 뷰입니다.';
+          el.subLede.textContent = '같은 표에서 매출(원) 칸이 더 잘 보이게 켠 상태입니다.';
         }
         if (el.table) {
           el.table.classList.remove('sp-an-table--mode-count');
@@ -376,50 +443,121 @@ export function initAnalytics(mount) {
   }
   setSubMode('sales');
 
-  function yearFilterList() {
-    const opts = [yNow - 1, yNow, yNow + 1];
-    if (!el.filterYear) {
+  /**
+   * @return {Promise<Object|null>}
+   */
+  async function persistToDrive_() {
+    if (!GAS_MODE.canSync || !ready) {
+      return null;
+    }
+    const out = localRows.map(function (x) {
+      return rowToPayload_(x);
+    });
+    return await analyticsTargetsApplyBatched_(url, out, 5000);
+  }
+
+  function schedulePersist_() {
+    if (persistTimer != null) {
+      window.clearTimeout(/** @type {number} */ (persistTimer));
+    }
+    persistTimer = window.setTimeout(function () {
+      persistTimer = undefined;
+      persistToDrive_()
+        .then(function (r) {
+          if (!r || !r.ok) {
+            setHint('드라이브에 반영하지 못했습니다.「지금 드라이브에 다시 저장」을 누르세요.', true);
+            return;
+          }
+          setHint('드라이브에 반영했습니다.', true);
+          return loadTargets();
+        })
+        .catch(function () {
+          setHint('드라이브에 반영하지 못했습니다.「지금 드라이브에 다시 저장」을 누르세요.', true);
+        });
+    }, 450);
+  }
+
+  function rebuildFilterPeriod_() {
+    if (!el.filterPeriod) {
       return;
     }
-    el.filterYear.innerHTML = '';
-    const a = document.createElement('option');
-    a.value = '';
-    a.textContent = '전체';
-    el.filterYear.appendChild(a);
-    for (let i = 0; i < opts.length; i++) {
-      const o = document.createElement('option');
-      o.value = String(opts[i]);
-      o.textContent = String(opts[i]) + '년';
-      el.filterYear.appendChild(o);
-    }
+    const cur = el.filterPeriod.value;
+    const years = new Set();
+    [yNow - 1, yNow, yNow + 1].forEach(function (y) {
+      years.add(y);
+    });
     for (let i = 0; i < localRows.length; i++) {
-      const yy = localRows[i].year;
-      const n = Math.floor(Number(yy));
-      if (!isFinite(n) || n < 2000) {
-        continue;
+      const n = Math.floor(Number(localRows[i].year));
+      if (isFinite(n) && n >= 2000 && n <= 2100) {
+        years.add(n);
       }
-      const ex = el.filterYear.querySelector('option[value="' + String(n) + '"]');
-      if (!ex) {
-        const o = document.createElement('option');
-        o.value = String(n);
-        o.textContent = String(n) + '년';
-        el.filterYear.appendChild(o);
+    }
+    const yArr = Array.from(years).sort(function (a, b) {
+      return a - b;
+    });
+    el.filterPeriod.innerHTML = '';
+    const o0 = document.createElement('option');
+    o0.value = 'all';
+    o0.textContent = '전체 기간';
+    el.filterPeriod.appendChild(o0);
+    for (let yi = 0; yi < yArr.length; yi++) {
+      const yv = yArr[yi];
+      const o1 = document.createElement('option');
+      o1.value = 'Y' + yv;
+      o1.textContent = yv + '년(그 해 전부)';
+      el.filterPeriod.appendChild(o1);
+      const oz = document.createElement('option');
+      oz.value = 'Y' + yv + 'M0';
+      oz.textContent = yv + '년·연간(월 0)';
+      el.filterPeriod.appendChild(oz);
+      for (let m = 1; m <= 12; m++) {
+        const om = document.createElement('option');
+        om.value = 'Y' + yv + 'M' + m;
+        om.textContent = yv + '년 ' + m + '월';
+        el.filterPeriod.appendChild(om);
       }
+    }
+    let found = false;
+    for (let oi = 0; oi < el.filterPeriod.options.length; oi++) {
+      if (el.filterPeriod.options[oi].value === cur) {
+        found = true;
+        break;
+      }
+    }
+    const mNow = new Date().getMonth() + 1;
+    const want = 'Y' + yNow + 'M' + mNow;
+    const hasWant = Array.prototype.some.call(el.filterPeriod.options, function (o) {
+      return o.value === want;
+    });
+    if (found && cur != null && cur.length) {
+      el.filterPeriod.value = cur;
+    } else if (hasWant) {
+      el.filterPeriod.value = want;
+    } else {
+      el.filterPeriod.value = 'all';
+    }
+    if (GAS_MODE.canSync && !GAS_MODE.useMock) {
+      void loadMasterActuals_();
     }
   }
 
   function rowPassesFilter(r) {
-    const fy = el.filterYear && el.filterYear.value ? el.filterYear.value : '';
-    const fm = el.filterMonth && el.filterMonth.value !== '' ? el.filterMonth.value : '';
-    if (fy.length) {
-      if (String(Math.floor(Number(r.year))) !== fy) {
-        return false;
-      }
+    if (!el.filterPeriod) {
+      return true;
     }
-    if (fm.length) {
-      if (String(Math.floor(Number(r.month))) !== fm) {
-        return false;
-      }
+    const p = el.filterPeriod.value != null && el.filterPeriod.value.length ? el.filterPeriod.value : 'all';
+    if (p === 'all') {
+      return true;
+    }
+    const yPart = r.year != null ? String(Math.floor(Number(r.year))) : '';
+    const mPart = r.month != null ? String(Math.floor(Number(r.month))) : '';
+    if (p.length === 5 && p.charAt(0) === 'Y') {
+      return yPart === p.slice(1);
+    }
+    const re = /^Y(\d{4})M(\d{1,2})$/;
+    const m = p.match(re);
+    if (m) {
+      return yPart === m[1] && mPart === String(Math.floor(Number(m[2])));
     }
     return true;
   }
@@ -436,10 +574,12 @@ export function initAnalytics(mount) {
       return;
     }
     el.tbody.innerHTML = '';
+    var appended = 0;
     for (let i = 0; i < localRows.length; i++) {
       if (!rowPassesFilter(localRows[i])) {
         continue;
       }
+      appended += 1;
       const r = localRows[i];
       const tr = document.createElement('tr');
       const sc = String(r.scope);
@@ -464,6 +604,22 @@ export function initAnalytics(mount) {
         '">삭제</button></td>';
       el.tbody.appendChild(tr);
     }
+    if (appended === 0) {
+      const trE = document.createElement('tr');
+      trE.className = 'sp-an-table__empty-row';
+      const tdE = document.createElement('td');
+      tdE.colSpan = 8;
+      tdE.className = 'sp-an-table__empty';
+      if (localRows.length === 0) {
+        tdE.textContent =
+          '이 표는 목표(선택)만 보입니다. 위「집계 실적」이 실제 주문·매출이고, 목표는 아래에 한 줄씩 넣고「이 줄을 표에 넣기」합니다.';
+      } else {
+        tdE.textContent =
+          '지금 [기간]에 맞는 목표 행이 없습니다.「전체 기간」으로 바꾸면 다른 목표가 다시 보일 수 있습니다.';
+      }
+      trE.appendChild(tdE);
+      el.tbody.appendChild(trE);
+    }
     if (el.tbody) {
       el.tbody.querySelectorAll('.sp-an-row-del').forEach(function (b) {
         b.addEventListener('click', function ev() {
@@ -475,14 +631,34 @@ export function initAnalytics(mount) {
             return;
           }
           localRows.splice(ix, 1);
-          yearFilterList();
+          rebuildFilterPeriod_();
           render();
+          schedulePersist_();
         });
       });
     }
   }
 
   function syncAnUi_() {
+    if (GAS_MODE.useMock) {
+      if (el.actuals) {
+        el.actuals.setAttribute('hidden', '');
+      }
+      if (el.init) {
+        el.init.setAttribute('hidden', '');
+      }
+      if (el.body) {
+        el.body.setAttribute('hidden', '');
+      }
+      return;
+    }
+    if (GAS_MODE.canSync) {
+      if (el.actuals) {
+        el.actuals.removeAttribute('hidden');
+      }
+    } else if (el.actuals) {
+      el.actuals.setAttribute('hidden', '');
+    }
     if (ready) {
       if (el.init) {
         el.init.setAttribute('hidden', '');
@@ -496,6 +672,93 @@ export function initAnalytics(mount) {
       }
       if (el.body) {
         el.body.setAttribute('hidden', '');
+      }
+    }
+  }
+
+  /**
+   * 마스터 orders에서 집계 (KPI 시트와 무관)
+   */
+  async function loadMasterActuals_() {
+    if (!GAS_MODE.canSync || GAS_MODE.useMock) {
+      return;
+    }
+    if (!el.filterPeriod || !el.valSales || !el.valOrders || !el.valMem) {
+      return;
+    }
+    if (el.actualsWarn) {
+      el.actualsWarn.setAttribute('hidden', '');
+      el.actualsWarn.textContent = '';
+    }
+    const ym = periodValueToApiYm_(el.filterPeriod.value);
+    const url = String(GAS_BASE_URL).trim();
+    try {
+      const r = await gasJsonpWithParams(
+        url,
+        'analyticsMasterActualsGet',
+        { year: String(ym.y), month: String(ym.m) },
+        90000
+      );
+      if (!r || !r.ok) {
+        if (el.valSales) {
+          el.valSales.textContent = '—';
+        }
+        if (el.valOrders) {
+          el.valOrders.textContent = '—';
+        }
+        if (el.valMem) {
+          el.valMem.textContent = '—';
+        }
+        if (el.actualsPrev) {
+          el.actualsPrev.textContent = '';
+        }
+        const msg =
+          r && r.error && typeof r.error === 'object' && r.error.message
+            ? String(r.error.message)
+            : errMsg_(r);
+        if (el.actualsWarn) {
+          el.actualsWarn.textContent = msg || '집계를 가져오지 못했습니다.';
+          el.actualsWarn.removeAttribute('hidden');
+        }
+        logSolpathApi_('analyticsMasterActualsGet', r, null);
+        return;
+      }
+      const d = (r.data && r.data) || {};
+      const pv = d.prevYear || {};
+      if (el.valSales) {
+        el.valSales.textContent = fmtKrw_(Number(d.actualSales));
+      }
+      if (el.valOrders) {
+        el.valOrders.textContent = fmtInt_(Number(d.orderCount));
+      }
+      if (el.valMem) {
+        el.valMem.textContent = fmtInt_(Number(d.uniqueMemberCount));
+      }
+      if (el.actualsPrev) {
+        const py = pv.year != null ? Number(pv.year) : d.year - 1;
+        const pm = pv.month != null ? Number(pv.month) : ym.m;
+        let plab = '';
+        if (pm === 0) {
+          plab = py + '년(연간)';
+        } else {
+          plab = py + '년 ' + pm + '월';
+        }
+        el.actualsPrev.textContent =
+          '전년 동기(' +
+          plab +
+          ') 실적: 매출 ' +
+          fmtKrw_(Number(pv.actualSales)) +
+          ' · 주문 ' +
+          fmtInt_(Number(pv.orderCount)) +
+          ' · 구매자 ' +
+          fmtInt_(Number(pv.uniqueMemberCount)) +
+          '. 목표를 비워 두었을 때 비교·참고로 쓸 수 있는 대표치입니다.';
+      }
+    } catch (e) {
+      logSolpathApi_('analyticsMasterActualsGet', null, e);
+      if (el.actualsWarn) {
+        el.actualsWarn.textContent = '집계 요청이 끝나지 않았습니다.';
+        el.actualsWarn.removeAttribute('hidden');
       }
     }
   }
@@ -526,7 +789,7 @@ export function initAnalytics(mount) {
           notes: x.notes != null ? String(x.notes) : ''
         };
       });
-      yearFilterList();
+      rebuildFilterPeriod_();
       render();
     } catch (e) {
       const m = e && e.message != null ? String(e.message) : '';
@@ -544,6 +807,8 @@ export function initAnalytics(mount) {
     syncAnUi_();
     if (ready) {
       void loadTargets();
+    } else {
+      rebuildFilterPeriod_();
     }
   }
 
@@ -555,6 +820,9 @@ export function initAnalytics(mount) {
   }
   if (el.btnReset) {
     el.btnReset.disabled = !GAS_MODE.canSync;
+  }
+  if (el.btnRepair) {
+    el.btnRepair.disabled = !GAS_MODE.canSync;
   }
 
   function validateRowInForm() {
@@ -609,19 +877,15 @@ export function initAnalytics(mount) {
       if (v.row) {
         localRows.push(v.row);
       }
-      yearFilterList();
+      rebuildFilterPeriod_();
       render();
-      setHint('목록에 넣었습니다. 「드라이브에 저장」을 누르면 올라갑니다.', true);
+      setHint('목록에 넣었습니다. 잠시 뒤 드라이브에도 반영되며, 안 되면「지금 드라이브에 다시 저장」을 누릅니다.', true);
     });
   }
 
-  if (el.filterYear) {
-    el.filterYear.addEventListener('change', function () {
-      render();
-    });
-  }
-  if (el.filterMonth) {
-    el.filterMonth.addEventListener('change', function () {
+  if (el.filterPeriod) {
+    el.filterPeriod.addEventListener('change', function () {
+      void loadMasterActuals_();
       render();
     });
   }
@@ -648,7 +912,12 @@ export function initAnalytics(mount) {
         ready = true;
         syncAnUi_();
         await loadTargets();
-        setHint('만들었습니다. 적은 뒤 「드라이브에 저장」으로 올립니다.', true);
+        setHint('드라이브에 목표 표가 준비됐습니다. 위 실적은 항상 마스터·동기화 기준이고, 아래는 선택 목표만 적습니다.', true);
+        window.requestAnimationFrame(function () {
+          if (el.actuals) {
+            el.actuals.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        });
       } catch (e) {
         logSolpathApi_('initAnalyticsSheets', null, e);
         const m = e && e.message != null ? String(e.message) : '';
@@ -661,6 +930,56 @@ export function initAnalytics(mount) {
       } finally {
         if (el.btnInit) {
           el.btnInit.disabled = false;
+        }
+      }
+    });
+  }
+
+  if (el.btnRepair) {
+    el.btnRepair.addEventListener('click', async function () {
+      if (!GAS_MODE.canSync) {
+        return;
+      }
+      if (!ready) {
+        setHint('먼저 집계용 드라이브 시트를 연 뒤 다시 누릅니다.', true);
+        return;
+      }
+      el.btnRepair.disabled = true;
+      if (el.loading) {
+        el.loading.removeAttribute('hidden');
+      }
+      setHint('탭 이행·주문라인을 마스터에서 다시 채우는 중…', true);
+      try {
+        const r = await gasJsonpWithParams(url, 'analyticsSheetsRepair', null, 120000);
+        if (!r || !r.ok) {
+          logSolpathApi_('analyticsSheetsRepair', r, null);
+          setHint(formatHintWithErrorCode_(r) || '갱신에 실패했습니다.', true);
+          return;
+        }
+        const d1 = (r && r.data) || {};
+        const wn = d1.written != null && isFinite(Number(d1.written)) ? Number(d1.written) : null;
+        setHint(
+          wn != null
+            ? '01·02 탭을 맞추고 주문라인 ' + wn + '행을 다시 썼습니다.'
+            : '01·02 탭을 맞추고 마스터에서 주문라인을 다시 채웠습니다.',
+          true
+        );
+        await loadTargets();
+      } catch (e) {
+        logSolpathApi_('analyticsSheetsRepair', null, e);
+        const m = e && e.message != null ? String(e.message) : '';
+        setHint(
+          m === 'timeout'
+            ? '응답이 지연되었습니다. [네트워크/timeout]'
+            : '요청이 끝나지 않았습니다. [콘솔에 상세]',
+          true
+        );
+      } finally {
+        if (el.loading) {
+          el.loading.setAttribute('hidden', '');
+        }
+        if (el.btnRepair) {
+          el.btnRepair.disabled = !GAS_MODE.canSync;
         }
       }
     });
@@ -728,7 +1047,7 @@ export function initAnalytics(mount) {
           return;
         }
         localRows = [];
-        yearFilterList();
+        rebuildFilterPeriod_();
         render();
         setHint('초기화했습니다.', true);
       } catch (e) {
@@ -749,8 +1068,13 @@ export function initAnalytics(mount) {
   if (tAn) {
     tAn.addEventListener('click', function () {
       window.setTimeout(function () {
-        if (tAn.classList.contains('is-active') && ready) {
-          loadTargets();
+        if (tAn.classList.contains('is-active')) {
+          if (GAS_MODE.canSync && !GAS_MODE.useMock) {
+            void loadMasterActuals_();
+          }
+          if (ready) {
+            void loadTargets();
+          }
         }
       }, 0);
     });
@@ -761,9 +1085,18 @@ export function initAnalytics(mount) {
   }
 
   syncAnUi_();
+  rebuildFilterPeriod_();
 
   return {
     applyStateFromData: applyStateFromData,
-    refresh: loadTargets
+    refresh: function () {
+      if (GAS_MODE.canSync && !GAS_MODE.useMock) {
+        void loadMasterActuals_();
+      }
+      if (ready) {
+        return loadTargets();
+      }
+      return Promise.resolve();
+    }
   };
 }
